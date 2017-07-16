@@ -4,6 +4,21 @@ import re
 import requests
 from ApplicantProfile import ApplicantProfile
 
+
+
+
+def create_applicant_profiles(page_tree):
+	# look for <strong></strong> w
+	# look for <ul></ul>
+	# each <li></li> in there will then have one or more attributes
+	# about the persons appllication profile and then from there you can 
+	# probably do the regular parsing 
+	x_path_to_entry = '//ul/li/text()'
+	all_unordered_lists_entries = page_tree.xpath(x_path_to_entry)
+	num_profiles = len(all_unordered_lists_entries)
+	print(str(all_unordered_lists_entries))
+	return all_unordered_lists_entries
+
 ## Data Structure to Hold Applicant Profiles ##
 all_profiles = []
 
@@ -33,18 +48,12 @@ for art in all_listed_article_links:
 	if len(nav_element) == 1:
 		num_pages = nav_element[0].text_content()[-1]
 		print(str(num_pages))
-	for page in range(2,num_pages+1):
+	for page in range(2,int(num_pages)+1):
 		art_content_tree_next_page = lxml.html.fromstring(requests.get(art+'/'+str(page)+'/').content)
 		nxt_page_profiles = create_applicant_profiles(art_content_tree_next_page)
 		all_profiles = all_profiles + nxt_page_profiles
 
 
-def create_applicant_profiles(page_tree):
-	# look for <strong></strong> w
-	# look for <ul></ul>
-	# each <li></li> in there will then have one or more attributes
-	# about the persons appllication profile and then from there you can 
-	# probably do the regular parsing 
 
 
 
