@@ -11,7 +11,7 @@ class ApplicantProfile():
 	international: boolean. defaults to False -> U.S applicants 
 	race: string representing race, may need parsing when we check out the raw text data
 	"""
-	def __init__(self,age,university,gmat_string,job_title=None,industry=None,company,=None,international=False,race=None):
+	def __init__(self,age,university,gmat_string,job_title=None,industry=None,company=None,international=False,race=None):
 		self.age = age
 		self.uni = university
 		self.gmat_score = int(self.parse_gmat(gmat_string))
@@ -24,14 +24,18 @@ class ApplicantProfile():
 	def parse_gmat(self,gmat_str):
 		s = gmat_str.upper()
 		if '/' in s:
+			pass
 			
 			if 'V' in s:
+				pass
 
 
 			if 'Q' in s:
+				pass
 
 		elif 'GMAT' in s:
-			
+			pass
+
 
 		return 800
 
