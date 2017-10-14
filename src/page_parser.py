@@ -43,14 +43,15 @@ def parse_lists_into_app_objects(stats_list,odds_list,analysis_list):
 	start_indices = []
 	for i in range(len(stats_list)):
 		e = stats_list[i]
-		if 'GMAT' in e.upper():
+		if 'GMAT' in e.upper() and len(e)<10:
 			start_indices.append(i)
 	list_of_lists_of_applicant_stats = partition(stats_list,start_indices)
 	n_apps = len(list_of_lists_of_applicant_stats)
 	aps = []
 	for j in range(n_apps):
-		ap = ApplicantProfile(list_of_lists_of_applicant_stats[j],odds_list[j])
-		aps.append(ap)
+		if len(odds_list)>=n_apps:
+			ap = ApplicantProfile(list_of_lists_of_applicant_stats[j],odds_list[j])
+			aps.append(ap)
 	return aps
 
 
@@ -64,10 +65,10 @@ def create_applicant_profiles(page_tree):
 	# probably do the regular parsing 
 	x_path_to_entry_stats_text = '//ul/li/text()'
 	x_path_to_headers = '//p/strong' 
-	odds_of_success_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(x_path_to_headers) if 'SUCCESS' in hdr.text_content().upper() or 'ODDS' in hdr.text_content().upper()]
+	odds_of_success_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(x_path_to_headers) if 'SUCCESS' in hdr.text_content().upper() and 'ODDS' in hdr.text_content().upper()]
 	# odds_of_success_text = []
 	# for hdr in page_tree.xpath(x_path_to_headers):
-	# 	if 'SUCCESS' or 'ODDS' in hdr.text_content().upper():
+	# 	if 'SUCCESS' in hdr.text_content().upper() and 'ODDS' in hdr.text_content().upper():
 	# 		odds = hdr.getparent().getnext().text_content()
 	# 		odds_of_success_text.append(odds)
 	partial_analysis_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(x_path_to_headers) if 'ANALYSIS' in hdr.text_content().upper()]

@@ -8,11 +8,12 @@ class ApplicantProfile():
 		self.odds = None
 		for stat in list_of_stats_text:
 			su = stat.upper()
-			if 'GMAT' in su and len(su)<10:
+			# the length check is to make sure we dont get extraneeous comments tht have "GMAT" in them
+			if 'GMAT' in su and bool(re.search('\d',su)) and (self.gmat_score is None):
 				self.gmat_score = self.parse_gmat(su)
-			elif 'GPA' in su or 'GRADE POINT AVERAGE' in su and len(su)<10:
+			elif ('GPA' in su or 'GRADE POINT AVERAGE' in su) and (bool(re.search('\d',su)) and self.gpa is None):
 				self.gpa = self.parse_gpa(su)
-			elif 'UNIVERSITY' in su or 'COLLEGE' in su or 'DEGREE' in su or 'INSTITUTE' in su:
+			elif ('UNIVERSITY' in su or 'COLLEGE' in su or 'DEGREE' in su or 'INSTITUTE' in su) and (self.uni is None):
 				self.uni = self.parse_uni(su)
 		self.odds = odds_string
 		for t in [self.uni,self.gmat_score,self.gpa]:
