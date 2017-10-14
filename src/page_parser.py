@@ -64,7 +64,12 @@ def create_applicant_profiles(page_tree):
 	# probably do the regular parsing 
 	x_path_to_entry_stats_text = '//ul/li/text()'
 	x_path_to_headers = '//p/strong' 
-	odds_of_success_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(x_path_to_headers) if 'SUCCESS' or 'ODDS' in hdr.text_content().upper()]
+	odds_of_success_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(x_path_to_headers) if 'SUCCESS' in hdr.text_content().upper() or 'ODDS' in hdr.text_content().upper()]
+	# odds_of_success_text = []
+	# for hdr in page_tree.xpath(x_path_to_headers):
+	# 	if 'SUCCESS' or 'ODDS' in hdr.text_content().upper():
+	# 		odds = hdr.getparent().getnext().text_content()
+	# 		odds_of_success_text.append(odds)
 	partial_analysis_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(x_path_to_headers) if 'ANALYSIS' in hdr.text_content().upper()]
 	# gets rid of garbage '<li>' elements that are blank or have the comment count in them.
 	applicant_stats_text = [li_text for li_text in page_tree.xpath(x_path_to_entry_stats_text) if li_text != ' ' and 'COMMENTS' not in li_text.upper()]

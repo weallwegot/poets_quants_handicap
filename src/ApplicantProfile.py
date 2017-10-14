@@ -8,9 +8,9 @@ class ApplicantProfile():
 		self.odds = None
 		for stat in list_of_stats_text:
 			su = stat.upper()
-			if 'GMAT' in su:
+			if 'GMAT' in su and len(su)<10:
 				self.gmat_score = self.parse_gmat(su)
-			elif 'GPA' in su or 'GRADE POINT AVERAGE' in su:
+			elif 'GPA' in su or 'GRADE POINT AVERAGE' in su and len(su)<10:
 				self.gpa = self.parse_gpa(su)
 			elif 'UNIVERSITY' in su or 'COLLEGE' in su or 'DEGREE' in su or 'INSTITUTE' in su:
 				self.uni = self.parse_uni(su)
