@@ -6,6 +6,13 @@ class ApplicantProfile():
 		self.gmat_score = None
 		self.gpa = None
 		self.odds = None
+		self.age = None
+		self.race = None
+		self.gender = None
+		self.major = None
+		self.job_title  = None
+		self.international = None
+		self.odds = None
 		for stat in list_of_stats_text:
 			su = stat.upper()
 			# the length check is to make sure we dont get extraneeous comments tht have "GMAT" in them
@@ -15,13 +22,18 @@ class ApplicantProfile():
 				self.gpa = self.parse_gpa(su)
 			elif ('UNIVERSITY' in su or 'COLLEGE' in su or 'DEGREE' in su or 'INSTITUTE' in su) and (self.uni is None):
 				self.uni = self.parse_uni(su)
+				self.major = self.parse_major(su)
+			elif ('YEAR' in su) and (bool(re.search('\d',su)) and self.age is None):
+				self.age = self.parse_age(su)
+				self.race = self.parse_race(su)
+				self.gender = self.parse_gender(su)
 		self.odds = odds_string
 		for t in [self.uni,self.gmat_score,self.gpa]:
 			print(str(t)) 
 		print(self.odds)
 
 	"""
-	represent one feature using this class
+	represent one feature using this class. Why does this exist?
 	gpa_string: string of gpa
 	university_string: string of school they went to 
 	gmat_string: a string because sometimes its represented as a __Q/__V other times as raw score
@@ -33,7 +45,7 @@ class ApplicantProfile():
 	race: string representing race, may need parsing when we check out the raw text data
 	age: how old is the person featured
 	"""
-	def boss_setter(self,gpa_string,gmat_string,univeristy_string,odds_string,job_title=None,industry=None,company=None,international=False,race=None,age=None):
+	def boss_setter(self,gpa_string,gmat_string,univeristy_string,odds_string,job_title=None,industry=None,company=None,international=False,race=None,age=None,gender=None,major=None):
 		# mandatory
 		self.gpa = self.parse_gpa(gpa_string)
 		self.gmat_score = self.parse_gmat(gmat_string)
@@ -46,11 +58,63 @@ class ApplicantProfile():
 		self.international = international
 		self.race = race
 		self.age = age
+		self.gender = gender
+		self.major = major
+
+	def parse_major(self, major_str):
+		su = major_str.upper()
+		if 'ENGINEER' in su or 'COMPUTER' in su:
+			return 'Engineering'
+		elif 'FINANCE'in major_str or 'ECON' in major_str:
+			return 'Economics'
+		elif 'BUSINESS' in major_str:
+			return 'Business'
+		elif 'INTERNATIONAL' in major_str:
+			return 'International Studies'
+		elif 'EDUCATION' in major_str:
+			return 'Education'
+
+	# not politically correct , will fix later and see how data comes out
+	def parse_gender(self, gender_str):
+		su = gender_str.upper()
+		if 'FE' in su or 'WOMAN' in su:
+			return 'Female'
+		# this order matters, since male is in female and man is in woman
+		elif 'MALE' in su or 'MAN' in su:
+			return 'MALE'
+		else:
+			return None
+	
+	# basic & non researched, potentially problematic.. working on it.
+	def parse_race(self,race_str):
+		s = race_str.upper()
+		if('AFRICA' in s or 'BLACK' in s):
+			return 'Black'
+		elif 'ASIA' in s or 'INDIA':
+			return 'Asian'
+		elif ('HISPANIC' in s) or ('LATIN' in s):
+			return 'Latinx'
+		elif ('WHITE' in s):
+			return 'White'
+		else:
+			return None
+
+
+
+	def parse_age(self,age_str):
+		g = re.findall('[-+]?\d*\.\d+|\d+',age_str)
+		if len(g) > 0:
+			return g[0]
+		return
+
+
 
 	# in progress lol, this is stupid.
 	def parse_uni(self,uni_str):
 		s = uni_str.upper()
-		if 'IVY' in s and not 'NEAR' in s:
+		# need to rework to have this be a list that allows you to update and add more entries
+		# this methodology is pretty bad. right now but ok for first pass.
+		if ('IVY' in s and not 'NEAR' in s) or ('M.I.T' in s) or ('COLUMBIA' in s) or ('YALE' in s):
 			return 'Tier 1'
 		elif 'NEAR' in s and 'IVY' in s:
 			return 'Tier 2'
