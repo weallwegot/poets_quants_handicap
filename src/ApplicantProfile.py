@@ -1,4 +1,5 @@
 import re
+import logging
 
 class ApplicantProfile():
 	def __init__(self,list_of_stats_text,odds_string):
@@ -29,8 +30,8 @@ class ApplicantProfile():
 				self.gender = self.parse_gender(su)
 		self.odds = odds_string
 		for t in [self.uni,self.gmat_score,self.gpa]:
-			print(str(t)) 
-		print(self.odds)
+			logging.info(str(t)) 
+		logging.info(self.odds)
 
 	"""
 	represent one feature using this class. Why does this exist?
@@ -73,6 +74,15 @@ class ApplicantProfile():
 			return 'International Studies'
 		elif 'EDUCATION' in major_str:
 			return 'Education'
+		elif 'FROM' in major_str:
+			split_major = major_str.split('FROM')
+			if len(split_major)>1:
+				self.uni = self.parse_uni(split_major[1])
+		else:
+			try:
+				logging.warning("Didn't parse any major from: {}\n".format(major_str))
+			except UnicodeEncodeError:
+				pass
 
 	# not politically correct , will fix later and see how data comes out
 	def parse_gender(self, gender_str):
@@ -83,6 +93,10 @@ class ApplicantProfile():
 		elif 'MALE' in su or 'MAN' in su:
 			return 'MALE'
 		else:
+			try:
+				logging.warning("Could not parse sex from {}\n".format(gender_str))
+			except UnicodeEncodeError:
+				pass
 			return None
 	
 	# basic & non researched, potentially problematic.. working on it.
@@ -97,6 +111,10 @@ class ApplicantProfile():
 		elif ('WHITE' in s):
 			return 'White'
 		else:
+			try:
+				logging.warning("Didnt parse any race from: {}\n".format(race_str))
+			except UnicodeEncodeError:
+				pass
 			return None
 
 
@@ -104,7 +122,23 @@ class ApplicantProfile():
 	def parse_age(self,age_str):
 		g = re.findall('[-+]?\d*\.\d+|\d+',age_str)
 		if len(g) > 0:
-			return g[0]
+			age = g[0]
+			if age > 80 or age < 18:
+				try:
+					logging.warning("Messed up age parsing: {}\n".format(age_str))
+				except UnicodeEncodeError:
+					pass
+			else:
+				return age
+		elif '-' in age_str and 'YEAR' in age_str:
+			split_age = age_str.split('-')
+			age = split_age[0]
+			return age
+
+		try:
+			logging.warning("Could not age parse: {}\n".format(age_str))
+		except UnicodeEncodeError:
+			pass
 		return
 
 
@@ -119,6 +153,10 @@ class ApplicantProfile():
 		elif 'NEAR' in s and 'IVY' in s:
 			return 'Tier 2'
 		else:
+			try:
+				logging.warning("Not enough info to parse university: {}".format(uni_str))
+			except UnicodeEncodeError:
+				pass
 			return 'Tier 3'
 
 	def parse_gpa(self,gpa_str):
@@ -136,7 +174,7 @@ class ApplicantProfile():
 
 			if 'Q' in s:
 				q=int(re.findall('\d+',s)[0])
-
+			# try to convert a gre score to gmat (rough)
 			if(v != 0 and q != 0):
 				rough_est = (v+q)*8.19
 				rounded = rough_est - rough_est%10
@@ -145,12 +183,18 @@ class ApplicantProfile():
 				else:
 					return rounded
 			else:
-				
+				try:
+					logging.warning("Could not parse gmat: {}\n".format(gmat_str))
+				except UnicodeEncodeError:
+					pass
 				return None
 
 		elif 'GMAT' in s:
 			return int(re.findall('\d+',s)[0])
-		print("Could not parse GMAT score")
+		try:
+			logging.warning("Could not parse GMAT score from: {}\n".format(gmat_str))
+		except UnicodeEncodeError:
+			pass
 		return None
 
 

@@ -3,7 +3,14 @@ import lxml.html
 import re 
 import requests
 import csv
+import logging
 from ApplicantProfile import ApplicantProfile
+
+import logging
+logging.basicConfig(format='%(asctime)s %(message)s',
+ datefmt='%m/%d/%Y %I:%M:%S %p',
+ filename='poetsquants_webscrape.log',
+ level=logging.DEBUG)
 
 """
 PARAMS
@@ -86,17 +93,20 @@ def create_applicant_profiles(page_tree,my_writer):
 	# probably do the regular parsing 
 	x_path_to_entry_stats_text = '//ul/li/text()'
 	x_path_to_headers = '//p/strong' 
+	# TODO: list comprehensions stop being cute at a certain point vvvvv
 	odds_of_success_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(x_path_to_headers) if 'SUCCESS' in hdr.text_content().upper() and 'ODDS' in hdr.text_content().upper()]
 	# odds_of_success_text = []
 	# for hdr in page_tree.xpath(x_path_to_headers):
 	# 	if 'SUCCESS' in hdr.text_content().upper() and 'ODDS' in hdr.text_content().upper():
 	# 		odds = hdr.getparent().getnext().text_content()
 	# 		odds_of_success_text.append(odds)
+
+	# TODO: list comprehensions stop being cute at a certain point vvvvv
 	partial_analysis_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(x_path_to_headers) if 'ANALYSIS' in hdr.text_content().upper()]
 	# gets rid of garbage '<li>' elements that are blank or have the comment count in them.
 	applicant_stats_text = [li_text for li_text in page_tree.xpath(x_path_to_entry_stats_text) if li_text != ' ' and 'COMMENTS' not in li_text.upper()]
 	applicant_list = parse_lists_into_app_objects(applicant_stats_text,odds_of_success_text,partial_analysis_text,my_writer)
-	#print(str(applicant_stats_text))
+	#logging.info(str(applicant_stats_text))
 
 
 	return applicant_list
@@ -120,7 +130,8 @@ all_profiles = []
 ## Get The Data on P&Q Website ##
 
 all_articles_page = requests.get("http://poetsandquants.com/2017/05/30/handicapping-your-elite-mba-odds-18/5/")
-print("*********** STATUS CODE: " + str(all_articles_page.status_code) + "********************")
+logging.info("*********** STATUS CODE: " + str(all_articles_page.status_code) + "********************")
+
 
 articles_page_tree = lxml.html.fromstring(all_articles_page.content)
 all_listed_a_tags = articles_page_tree.xpath('//html//a')
@@ -130,7 +141,7 @@ all_listed_article_links = [el.attrib['href'] for el in all_listed_a_tags if "Pa
 
 # loop through all of the links on the root page
 for art in all_listed_article_links:
-	print art
+	logging.info("current article link: {}\n".format(art))
 	# retrieve content of current link.
 	art_content_tree = lxml.html.fromstring(requests.get(art).content)
 	# make sure to get all the pages in the article
@@ -146,9 +157,10 @@ for art in all_listed_article_links:
 	if len(nav_element) == 1:
 		# get last character of string that says "Page 1 of 4"
 		num_pages = nav_element[0].text_content()[-1]
-		print(str(num_pages))
+		logging.info("Number of pages: {}\n".format(num_pages))
 	# loop through all of the pages that make up the given article.
 	for page in range(2,int(num_pages)+1):
+		logging.info("On page #{}\n".format(page))
 		art_content_tree_next_page = lxml.html.fromstring(requests.get(art+'/'+str(page)+'/').content)
 		nxt_page_profiles = create_applicant_profiles(art_content_tree_next_page,mw)
 		all_profiles += nxt_page_profiles
