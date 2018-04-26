@@ -66,16 +66,28 @@ class ApplicantProfile():
 		su = major_str.upper()
 		if 'ENGINEER' in su or 'COMPUTER' in su:
 			return 'Engineering'
-		elif 'FINANCE'in major_str or 'ECON' in major_str:
+		elif 'ECON' in su:
 			return 'Economics'
-		elif 'BUSINESS' in major_str:
+		elif 'FINANCE' in su or 'ACCOUNT' in su:
+			return 'Finance'
+		elif 'BUSINESS' in su:
 			return 'Business'
-		elif 'INTERNATIONAL' in major_str:
+		elif 'INTERNATIONAL' in su:
 			return 'International Studies'
-		elif 'EDUCATION' in major_str:
+		elif 'EDUCATION' in su:
 			return 'Education'
-		elif 'FROM' in major_str:
-			split_major = major_str.split('FROM')
+		elif 'PHILOSOPHY' in su:
+			return 'Philosophy'
+		elif 'POLITIC' in su and 'SCIENCE' in su:
+			return 'Political Science'
+		elif 'PUBLIC POLICY' in su:
+			return 'Public Policy'
+		elif 'JOURNAL' in su:
+			return 'Jouranlism'
+		elif 'SCIENCE' in su or 'BIOLOGY' in su or 'CHEMISTRY' in su or 'PHYSIC' in su:
+			return 'STEM'
+		elif 'FROM' in su:
+			split_major = su.split('FROM')
 			if len(split_major)>1:
 				self.uni = self.parse_uni(split_major[1])
 		else:
@@ -102,9 +114,9 @@ class ApplicantProfile():
 	# basic & non researched, potentially problematic.. working on it.
 	def parse_race(self,race_str):
 		s = race_str.upper()
-		if('AFRICA' in s or 'BLACK' in s):
+		if('AFRICA' in s or 'BLACK' in s or 'GHAN' in s or 'NIGERI' in s):
 			return 'Black'
-		elif 'ASIA' in s or 'INDIA':
+		elif 'ASIA' in s or 'INDIA' in s:
 			return 'Asian'
 		elif ('HISPANIC' in s) or ('LATIN' in s):
 			return 'Latinx'
@@ -123,14 +135,14 @@ class ApplicantProfile():
 		g = re.findall('[-+]?\d*\.\d+|\d+',age_str)
 		if len(g) > 0:
 			age = g[0]
-			if age > 80 or age < 18:
+			if float(age) > 80 or float(age) < 18:
 				try:
 					logging.warning("Messed up age parsing: {}\n".format(age_str))
 				except UnicodeEncodeError:
 					pass
 			else:
 				return age
-		elif '-' in age_str and 'YEAR' in age_str:
+		elif '-' in age_str and 'YEAR' in age_str.upper():
 			split_age = age_str.split('-')
 			age = split_age[0]
 			return age
