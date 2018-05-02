@@ -188,7 +188,9 @@ class ApplicantProfile():
 				q=int(re.findall('\d+',s)[0])
 			# try to convert a gre score to gmat (rough)
 			if(v != 0 and q != 0):
-				rough_est = (v+q)*8.19
+				# i know this is non-linear but this is rough
+				# and is okay for people in the 620-750 gmat range
+				rough_est = (v+q)*2.019
 				rounded = rough_est - rough_est%10
 				if rounded>800:
 					return 800
