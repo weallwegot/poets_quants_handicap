@@ -1,4 +1,4 @@
-# poets_quants_handicap
+# Handicapping EVERYONES MBA Odds
 
 This project is still a work in progress but its essentially a webscrape of an MBA website where a former admissions officer gives people the odds that they'll get into certain programs across the country. The webscrape is used to build a dataset of applicant profiles. The applicant profiles will be fed into a linear regression model and used to teach a model how to predict someones chances of getting into different business schools based on their profile. uses the most basic of features, GMAT or GMAT equivalent (using this [conversion tool](https://github.com/weAllWeGot/gre_to_gmat)), GPA, school, major, gender, race. Obviously a lot more goes into an admission decision, but this is still fun to do. Since I'm assuming people don't want to read all 200+ profiles looking for someone with a similar profile to them. I think there's real demand for this because the comments in those articles are overflowing with people posting their profiles and waiting for the website to do a feature on them.
 
