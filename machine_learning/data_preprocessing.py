@@ -5,7 +5,7 @@ import re
 import pandas as pd
 import numpy as np
 
-from constants import SCHOOLS_REVERSED
+from constants import SCHOOLS_REVERSED, TARGET_LABELS
 
 
 
@@ -80,5 +80,29 @@ def preprocess_data(data_df,output_path=None):
 	df_processed = _process_data_df(new_df_w_labels)
 	if output_path:
 		df_processed.to_csv(output_path)
-	print df_processed
-	return df_processed
+
+	features_only_df = df_processed.drop(TARGET_LABELS,axis=1,inplace=False)
+
+	feature_cols = set(df_processed.columns) - set(TARGET_LABELS)
+	labels = df_processed.drop(feature_cols,axis=1,inplace=False)
+
+	multi_data_set_dict = {}
+	for school in labels.columns:
+		# multi_data_set_dict[school] = labels[school].values
+		df_for_school = features_only_df.join(pd.DataFrame({school:labels[school]}))
+		school_dict = {}
+		df_for_school.dropna(inplace=True)
+		school_dict['features'] = df_for_school.drop([school],axis=1,inplace=False).values
+		school_dict['labels'] = df_for_school.drop(feature_cols,axis=1,inplace=False).values
+		multi_data_set_dict[school] = school_dict
+
+
+
+	return multi_data_set_dict
+
+
+
+
+
+
+
