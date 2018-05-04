@@ -1,6 +1,8 @@
 import re
 import logging
 
+from gre2gmat.conversions import gre2gmat
+
 class ApplicantProfile():
 	def __init__(self,list_of_stats_text,odds_string):
 		self.uni = None
@@ -188,10 +190,9 @@ class ApplicantProfile():
 				q=int(re.findall('\d+',s)[0])
 			# try to convert a gre score to gmat (rough)
 			if(v != 0 and q != 0):
-				# i know this is non-linear but this is rough
-				# and is okay for people in the 620-750 gmat range
-				rough_est = (v+q)*2.019
-				rounded = rough_est - rough_est%10
+				# using my pypi package! https://github.com/weAllWeGot/gre_to_gmat
+				rough_est = gre2gmat(gre_verbal=v,gre_quant=q)
+				rounded = rough_est
 				if rounded>800:
 					return 800
 				else:
