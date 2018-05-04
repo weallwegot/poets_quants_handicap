@@ -24,3 +24,5 @@ for k,v in SCHOOLS.iteritems():
 		SCHOOLS_REVERSED[name] = k
 
 print SCHOOLS_REVERSED
+
+TARGET_LABELS = list(set(SCHOOLS_REVERSED.values()))
