@@ -27,10 +27,11 @@ def classification_metrics(Y_pred, Y_true):
 #input: Name of classifier, predicted labels, actual labels
 def display_metrics(classifierName,Y_pred,Y_true):
 	print("______________________________________________")
-	print("Classifier: "+classifierName)
+
+	print("Classifier: {}\n".format(classifierName))
 	mean_abs, mean_squared, r2 = classification_metrics(Y_pred,Y_true)
-	print("Mean Absolute Error: "+str(mean_abs))
-	print("Mean Squared Error: "+str(mean_squared))
-	print("R2 Coefficient of Determination: "+str(r2))
+	print("Mean Absolute Error: {}\n".format(mean_abs))
+	print("Mean Squared Error: {}\n".format(mean_squared))
+	print("R2 Coefficient of Determination: {}\n".format(r2))
 	print("______________________________________________")
 	print("")
