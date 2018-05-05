@@ -1,17 +1,11 @@
 import os
-import itertools
-import re
-
 
 import pandas as pd
-import numpy as np
-
-
 
 from data_preprocessing import preprocess_data
 from models import linear_regression_pred,display_metrics
 
-# setup the random state
+# setup the random state for fitting
 RANDOM_STATE = 545510477
 OUT_DIR = os.path.join(os.path.dirname(__file__),'data_out')
 
@@ -33,9 +27,11 @@ for school,feature_label_d in school_data_dict.items():
 
 	print "Number of Samples for {}: {}\n".format(school,features.shape[0])
 
-	# test model against train data
+	# test model against train data. we are using ALL of the data for training. 
+	# Not splitting for cross validation because the dataset for each school is TINY
 	predicted_labels = linear_regression_pred(features,labels)
 
+	# display metrics for predicting on the training data for each model
 	display_metrics("LinearRegression for {}".format(school),predicted_labels,labels)
 
 
