@@ -152,7 +152,7 @@ def preprocess_data(data_df,output_path=None):
 				new_df_w_labels.at[idx,standard_school_name] = _parse_str_nums(perc)
 
 	# dataset currently has a ton of majors as categories. try combining them into STEM/NonSTEM to reduce dimensionality
-	# df_processed = _reduce_majors_dimensionality(new_df_w_labels)
+	# new_df_w_labels = _reduce_majors_dimensionality(new_df_w_labels)
 	df_processed = _drop_unused_and_expand_categorical_columns(new_df_w_labels)
 
 	# write dataframe to csv after processing for debugging and things

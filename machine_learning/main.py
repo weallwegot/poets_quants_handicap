@@ -3,10 +3,9 @@ import os
 import pandas as pd
 
 from data_preprocessing import preprocess_data
-from models import linear_regression_pred,display_metrics
+from models import linear_regression_pred,linear_ridge_pred,linear_ridge_cv_pred,display_metrics
 
-# setup the random state for fitting
-RANDOM_STATE = 545510477
+
 OUT_DIR = os.path.join(os.path.dirname(__file__),'data_out')
 
 IN_FILE_NAME = 'pq_data_4_24_18.csv'
@@ -29,11 +28,19 @@ for school,feature_label_d in school_data_dict.items():
 
 	# test model against train data. we are using ALL of the data for training. 
 	# Not splitting for cross validation because the dataset for each school is TINY
-	predicted_labels = linear_regression_pred(features,labels)
+	predicted_labels_lr = linear_regression_pred(features,labels)
+
+	predicted_labels_ridge = linear_ridge_pred(features,labels)
+
+	predicted_labels_ridge_cv = linear_ridge_cv_pred(features,labels)
+
 
 	# display metrics for predicting on the training data for each model
-	display_metrics("LinearRegression for {}".format(school),predicted_labels,labels)
+	display_metrics("Linear Regression for {}".format(school),predicted_labels_lr,labels)
 
+	display_metrics("Ridge for {}".format(school),predicted_labels_ridge,labels)
+
+	display_metrics("Ridge with Parameter Tuning for {}".format(school),predicted_labels_ridge_cv,labels)
 
 
 
