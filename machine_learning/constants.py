@@ -26,3 +26,6 @@ for k,v in SCHOOLS.iteritems():
 print SCHOOLS_REVERSED
 
 TARGET_LABELS = list(set(SCHOOLS_REVERSED.values()))
+
+# setup the random state for stochastic models
+RANDOM_STATE = 545510477
