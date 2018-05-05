@@ -1,12 +1,14 @@
-### Results from Machine Learning
 
 Input Data: [Poets & Quants Webscrape](..\data_out\pq_data_4_24_18.csv)
 
 Preprocessing Steps: [Checkout Methods Here](data_preprocessing.py)
 
+Created one model for each school.
+
+
 #### Notes & Issues
 
-Tons of overfitting going on (check out Michigan Cornell and INSEAD). Right now, just testing Proof of Concept and Things.
+Tons of overfitting going on (check out Michigan, Cornell, and INSEAD). Right now, just testing Proof of Concept and Things.
 
 Tiny number of samples for each school, currently experimenting with ways to reduce dimensionality of categorical features like majors. 
 
@@ -15,14 +17,23 @@ Data quality is a work in progress. The webscrape parsing piece leaves much to b
 Looking to try some more techniques apart from Linear Regression.
 
 
+---------------------------------------------------------------------
+
+## Results
+
+
+
 
 
 Number of Samples for Duke: 22
 
 ______________________________________________
 Classifier: LinearRegression for Duke
+
 Mean Absolute Error: 3.58485224787
+
 Mean Squared Error: 22.0921411102
+
 R2 Coefficient of Determination: 0.795259046485
 ______________________________________________
 
@@ -31,26 +42,37 @@ Number of Samples for Columbia: 29
 ______________________________________________
 Classifier: LinearRegression for Columbia
 Mean Absolute Error: 3.46662790023
+
 Mean Squared Error: 18.7949446535
+
 R2 Coefficient of Determination: 0.790745676603
+
 ______________________________________________
 
 Number of Samples for Stanford: 47
 
 ______________________________________________
 Classifier: LinearRegression for Stanford
+
 Mean Absolute Error: 4.60340588495
+
 Mean Squared Error: 33.0629974013
+
 R2 Coefficient of Determination: 0.462376435337
+
 ______________________________________________
 
 Number of Samples for Cornell: 9
 
 ______________________________________________
 Classifier: LinearRegression for Cornell
+
 Mean Absolute Error: 7.83570739158e-14
+
 Mean Squared Error: 1.19461589438e-26
+
 R2 Coefficient of Determination: 1.0
+
 ______________________________________________
 
 Number of Samples for Berkeley: 26
