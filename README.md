@@ -5,6 +5,7 @@ This project is still a work in progress but its essentially a webscrape of an M
 - The `page_parser` is used to build a dataset of applicant profiles from [Poets and Quants](http://poetsandquants.com/2017/05/30/handicapping-your-elite-mba-odds-18/5/)
 
 - Applicant information will be the features that go into a ML model. probably just linear regression. Not sure yet. 
+  Progress on those results can be found [here](/machine_learning/README.md)
 
 - Uses the basic features from the webscrape:
   - GMAT or GMAT equivalent (using this [conversion tool](https://github.com/weAllWeGot/gre_to_gmat))
