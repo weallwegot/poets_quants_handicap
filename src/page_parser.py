@@ -3,14 +3,21 @@ import lxml.html
 import re 
 import requests
 import csv
+import time
 import logging
+import datetime
 from ApplicantProfile import ApplicantProfile
+
 
 import logging
 logging.basicConfig(format='%(asctime)s %(message)s',
  datefmt='%m/%d/%Y %I:%M:%S %p',
  filename='poetsquants_webscrape.log',
  level=logging.DEBUG)
+
+DTNOW = datetime.datetime.now()
+
+DATA_FILENAME = 'poetsquantsdata_{}.csv'.format(str(DTNOW))
 
 """
 PARAMS
@@ -21,6 +28,13 @@ indices: a list of indices to slice the a list on
 RETURNS
 --------
 returns a list of lists, split on indices contained in indices
+
+EXAMPLE
+--------
+>>> indexes = [5, 12, 17]
+>>> alist = range(20)
+>>> parition(alist,indexes)
+>>> [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9, 10, 11], [12, 13, 14, 15, 16], [17, 18, 19]]
 """
 # https://stackoverflow.com/questions/1198512/split-a-list-into-parts-based-on-a-set-of-indexes-in-python
 def partition(alist,indices):
@@ -45,7 +59,7 @@ RETURNS
 ---------
 list of ApplicantProfile objects. see ApplicantProfile.py
 """
-def parse_lists_into_app_objects(stats_list,odds_list,analysis_list,my_writer):
+def parse_lists_into_app_objects(stats_list,odds_list,analysis_list,my_writer,filename=None):
 	#find number of applicants defined by list.
 	#there should only be GMAT so use that to split list
 	start_indices = []
@@ -59,7 +73,7 @@ def parse_lists_into_app_objects(stats_list,odds_list,analysis_list,my_writer):
 	for j in range(n_apps):
 		if len(odds_list)>=n_apps:
 			ap = ApplicantProfile(list_of_lists_of_applicant_stats[j],odds_list[j])
-			with open('poetsquantsdata.csv', 'ar') as csvfile:
+			with open(DATA_FILENAME, 'ar') as csvfile:
 				# fieldnames = ["GMAT",
 				# "GPA",
 				# "UNIVERSITY","MAJOR","JOBTITLE",
@@ -85,7 +99,7 @@ def parse_lists_into_app_objects(stats_list,odds_list,analysis_list,my_writer):
 
 
 
-def create_applicant_profiles(page_tree,my_writer):
+def create_applicant_profiles(page_tree,my_writer,filename=None):
 	# look for <strong></strong> w
 	# look for <ul></ul>
 	# each <li></li> in there will then have one or more attributes
@@ -105,20 +119,34 @@ def create_applicant_profiles(page_tree,my_writer):
 	partial_analysis_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(x_path_to_headers) if 'ANALYSIS' in hdr.text_content().upper()]
 	# gets rid of garbage '<li>' elements that are blank or have the comment count in them.
 	applicant_stats_text = [li_text for li_text in page_tree.xpath(x_path_to_entry_stats_text) if li_text != ' ' and 'COMMENTS' not in li_text.upper()]
-	applicant_list = parse_lists_into_app_objects(applicant_stats_text,odds_of_success_text,partial_analysis_text,my_writer)
+	
+	applicant_list = parse_lists_into_app_objects(
+		applicant_stats_text,
+		odds_of_success_text,
+		partial_analysis_text,
+		my_writer,
+		filename=filename
+		)
 	#logging.info(str(applicant_stats_text))
 
 
 	return applicant_list
 
-fieldnames = ["GMAT",
-"GPA","UNIVERSITY","MAJOR","JOBTITLE",
-"GENDER","RACE","AGE",
-"INTERNATIONAL",
-"ODDS"]
+fieldnames = [
+			"GMAT",
+			"GPA",
+			"UNIVERSITY",
+			"MAJOR",
+			"JOBTITLE",
+			"GENDER",
+			"RACE",
+			"AGE",
+			"INTERNATIONAL",
+			"ODDS"
+			]
 ## create csv
 mw = None
-with open('poetsquantsdata.csv', 'wr') as csvfile:
+with open(DATA_FILENAME, 'wr') as csvfile:
 
     mw = csv.DictWriter(csvfile, fieldnames=fieldnames)
     mw.writeheader()
@@ -143,6 +171,7 @@ all_listed_article_links = [el.attrib['href'] for el in all_listed_a_tags if "Pa
 for art in all_listed_article_links:
 	logging.info("current article link: {}\n".format(art))
 	# retrieve content of current link.
+	time.sleep(6.0)
 	art_content_tree = lxml.html.fromstring(requests.get(art).content)
 	# make sure to get all the pages in the article
 	# here we or getting the part that says "Page 1 of 4"
@@ -150,7 +179,7 @@ for art in all_listed_article_links:
 	nav_element = art_content_tree.xpath(pages_nav_xpath)
 	# we could make this an internal attribute of a data class or just do everything in less OO terms
 	# for now make it more scripty and just have a "global" var to hold the applicant profiles
-	profiles = create_applicant_profiles(art_content_tree,mw)
+	profiles = create_applicant_profiles(art_content_tree,mw,filename=DATA_FILENAME)
 	# this is like append, but a bit diff; ex: [] += [1,2] -> [1,2]
 	all_profiles += profiles
 	num_pages = 1
@@ -161,6 +190,7 @@ for art in all_listed_article_links:
 	# loop through all of the pages that make up the given article.
 	for page in range(2,int(num_pages)+1):
 		logging.info("On page #{}\n".format(page))
+		time.sleep(1.0)
 		art_content_tree_next_page = lxml.html.fromstring(requests.get(art+'/'+str(page)+'/').content)
 		nxt_page_profiles = create_applicant_profiles(art_content_tree_next_page,mw)
 		all_profiles += nxt_page_profiles
