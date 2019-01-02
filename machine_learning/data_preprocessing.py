@@ -5,6 +5,8 @@ import re
 import pandas as pd
 import numpy as np
 
+from catboost import Pool, FeaturesData
+
 from constants import SCHOOLS_REVERSED, TARGET_LABELS
 
 
@@ -13,8 +15,7 @@ from constants import SCHOOLS_REVERSED, TARGET_LABELS
 def _parse_str_nums(num_string):
 	"""
 	parse strings of numbers and take averages if there are multiple
-	Since negative numbers dont occurr that often we are just 
-	
+
 	:param num_string: a string of numbers and text
 	:type num_string: String
 
@@ -33,11 +34,11 @@ def _parse_str_nums(num_string):
 
 	num_string.upper().replace("ZERO","0").replace("Forget it","0")
 	# regex to find numbers
-	nums = re.findall('\d+',num_string)
+	nums = re.findall(r'\d+',num_string)
 
 	# but if theres only one number, then we know its NOT a range and thus we can look for negative numbers
 	if len(nums) == 1:
-		nums = re.findall('[+-]?\d+(?:\.\d+)?',num_string)
+		nums = re.findall(r'[+-]?\d+(?:\.\d+)?',num_string)
 
 	# cast strings to ints
 	nums = [int(n) for n in nums]
@@ -117,23 +118,131 @@ def _reduce_majors_dimensionality(data):
 
 
 
-
 def _drop_unused_and_expand_categorical_columns(data):
 	"""
 	Drop data columns that were unused or have mostly NaNs
 	Expand categorical datas so they can be represented numerically
 	"""
 	#drop unused columns
-	dropped_data = data.drop(['ODDS','INTERNATIONAL','JOBTITLE'],axis=1,inplace=False)
+	data_after_drop = data.drop(['ODDS','INTERNATIONAL','JOBTITLE'],axis=1,inplace=False)
 	# dropped_data = data.drop(['ODDS','INTERNATIONAL','JOBTITLE','UNIVERSITY','MAJOR','GENDER','RACE'],axis=1,inplace=False)
 
 	#change categorical data into numeric
 	categorical_cols = ['UNIVERSITY','MAJOR','GENDER','RACE']
 	# categorical_cols = []
-	df_processed = pd.get_dummies(data=dropped_data,columns=categorical_cols)
+	df_processed = pd.get_dummies(data=data_after_drop,columns=categorical_cols)
 	return df_processed
 
+
+def preprocess_data_4_catboost(data_df,output_path=None):
+	"""
+	preprocess data for working with gradient boosting techniques
+	specifically with the catboost library. since this is going to use
+	the preprocessing built into the catboost library there are slightly
+	different steps to be done
+	"""
+
+	"""
+	train_data = Pool(
+		data=FeaturesData(
+			num_feature_data=np.array([[1, 4, 5, 6], 
+									   [4, 5, 6, 7], 
+									   [30, 40, 50, 60]], 
+									   dtype=np.float32),
+			cat_feature_data=np.array([[b"a", b"b"], 
+									   [b"a", b"b"], 
+									   [b"c", b"d"]], 
+									   dtype=object)
+		),
+		label=[1, 1, -1]
+	)
+	"""
+
+	new_df_w_labels = data_df.copy()
+	for idx,odds_string in data_df.ODDS.iteritems():
+		# skip data qual errors and abnormalities
+		if not isinstance(odds_string,str):
+			continue
+
+		divied_list = _preprocess_odds_string(odds_string)
+		for school_or_perc in divied_list:
+			if school_or_perc in SCHOOLS_REVERSED.keys():
+				school_idx = divied_list.index(school_or_perc)
+				# the percent is always the next index after the school
+				perc = divied_list[school_idx+1]
+				# print "School: {};Odds: {}".format(school_or_perc,perc)
+				# use the standardized name
+				standard_school_name = SCHOOLS_REVERSED[school_or_perc]
+				# insert the specific name value for the correct row
+				new_df_w_labels.at[idx,standard_school_name] = _parse_str_nums(perc)
+
+	
+	#drop unused columns
+	data_after_drop = new_df_w_labels.drop(['ODDS','INTERNATIONAL','JOBTITLE'],axis=1,inplace=False)
+
+	#change categorical data into numeric
+	categorical_cols = ['UNIVERSITY','MAJOR','GENDER','RACE']
+
+
+
+
+	# a dataframe of ONLY the features
+	features_only_df = df_processed.drop(TARGET_LABELS,axis=1,inplace=False)
+	# determine the columns that are features by subtracting from labels
+	feature_cols = set(df_processed.columns) - set(TARGET_LABELS)
+	# a dataframe with ONLY labels
+	labels = df_processed.drop(feature_cols,axis=1,inplace=False)
+
+	multi_data_set_dict = {}
+	for school in labels.columns:
+
+
+
+		df_for_school = features_only_df.join(pd.DataFrame({school:labels[school]}))
+		# a holder dictionary that contains the features numpy ndarray for features and numpy ndarray for school label
+		school_dict = {}
+		# drop the NaNs from the dataset in any feature column or label. otherwise model training will fail
+		df_for_school.dropna(inplace=True)
+		# store the features as a numpy ndarray to be fed directly to model training
+
+		numerical_features_np_array = df_for_school.drop([school]+categorical_cols,axis=1,inplace=False).values
+
+		categorical_features_np_array = df_for_school[categorical_cols].values
+		# store the labels for a particular school as a numpy ndarray to be fed directly to model training
+		labels_np_array = df_for_school.drop(feature_cols,axis=1,inplace=False).values
+		
+
+		datasetpool = Pool(
+			data=FeaturesData(
+				num_feature_data=np.array(numerical_features_np_array, 
+										   dtype=np.float32),
+				cat_feature_data=np.array(categorical_features_np_array, 
+										   dtype=object)
+			),
+			label=labels_np_array
+		)
+
+
+
+		multi_data_set_dict[school] = datasetpool
+
+
+	return multi_data_set_dict
+
+
 def preprocess_data(data_df,output_path=None):
+	"""
+	preprocess data for general regression modeling
+	combines many steps such as working with the odds strings
+	and one hot encoding categorical features
+
+	input is a pandas dataframe of features and labels 
+
+	output is a dictionary of datasets, where each key
+	is the feature set + lables for one school.
+	Since each school uses its own model, each school also needs its
+	own set of features/labels
+	"""
 	new_df_w_labels = data_df.copy()
 	for idx,odds_string in data_df.ODDS.iteritems():
 		# skip data qual errors and abnormalities
