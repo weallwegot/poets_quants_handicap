@@ -210,9 +210,6 @@ def preprocess_data_4_catboost(data_df,output_path=None):
 		categorical_features_np_array = df_for_school[categorical_cols].values
 		# store the labels for a particular school as a numpy ndarray to be fed directly to model training
 		labels_as_list = df_for_school.drop(feature_cols,axis=1,inplace=False)[school].tolist()
-		
-		import pdb
-		pdb.set_trace()
 
 		datasetpool = Pool(
 			data=FeaturesData(
