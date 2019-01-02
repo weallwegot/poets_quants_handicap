@@ -187,11 +187,11 @@ def preprocess_data_4_catboost(data_df,output_path=None):
 
 
 	# a dataframe of ONLY the features
-	features_only_df = df_processed.drop(TARGET_LABELS,axis=1,inplace=False)
+	features_only_df = data_after_drop.drop(TARGET_LABELS,axis=1,inplace=False)
 	# determine the columns that are features by subtracting from labels
-	feature_cols = set(df_processed.columns) - set(TARGET_LABELS)
+	feature_cols = set(data_after_drop.columns) - set(TARGET_LABELS)
 	# a dataframe with ONLY labels
-	labels = df_processed.drop(feature_cols,axis=1,inplace=False)
+	labels = data_after_drop.drop(feature_cols,axis=1,inplace=False)
 
 	multi_data_set_dict = {}
 	for school in labels.columns:
@@ -209,8 +209,10 @@ def preprocess_data_4_catboost(data_df,output_path=None):
 
 		categorical_features_np_array = df_for_school[categorical_cols].values
 		# store the labels for a particular school as a numpy ndarray to be fed directly to model training
-		labels_np_array = df_for_school.drop(feature_cols,axis=1,inplace=False).values
+		labels_as_list = df_for_school.drop(feature_cols,axis=1,inplace=False)[school].tolist()
 		
+		import pdb
+		pdb.set_trace()
 
 		datasetpool = Pool(
 			data=FeaturesData(
@@ -219,7 +221,7 @@ def preprocess_data_4_catboost(data_df,output_path=None):
 				cat_feature_data=np.array(categorical_features_np_array, 
 										   dtype=object)
 			),
-			label=labels_np_array
+			label=labels_as_list
 		)
 
 
