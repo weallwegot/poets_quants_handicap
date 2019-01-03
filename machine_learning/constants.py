@@ -23,8 +23,6 @@ for k,v in SCHOOLS.iteritems():
 	for name in v:
 		SCHOOLS_REVERSED[name] = k
 
-print SCHOOLS_REVERSED
-
 TARGET_LABELS = list(set(SCHOOLS_REVERSED.values()))
 
 # setup the random state for stochastic models
