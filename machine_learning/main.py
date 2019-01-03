@@ -2,8 +2,10 @@ import os
 
 import pandas as pd
 
-from data_preprocessing import preprocess_data
-from models import linear_regression_pred,linear_ridge_pred,linear_ridge_cv_pred,display_metrics
+from data_preprocessing import preprocess_data, preprocess_data_4_catboost
+from models import fit_train_test_cv,gboosting_train_test,catboost_pred,gboosting_pred,linear_regression_pred,linear_ridge_pred,linear_ridge_cv_pred,display_metrics
+from ML_AP import ApplicantProfile
+from constants import SCHOOLS_REVERSED, TARGET_LABELS
 
 
 OUT_DIR = os.path.join(os.path.dirname(__file__),'data_out')
@@ -16,31 +18,116 @@ input_data_df = pd.read_csv(IN_FILE_PATH)
 
 
 
-school_data_dict = preprocess_data(data_df=input_data_df,output_path=OUT_FILE_PATH)
+# catboost_data_dict = preprocess_data_4_catboost(data_df=input_data_df)
 
+# for school, catboostpool in catboost_data_dict.items():
+
+# 	predicted_labels = catboost_pred(catboostpool)
+
+# 	labels = catboostpool.get_label()
+
+# 	display_metrics("Catboost for {}".format(school),predicted_labels,labels)
+
+
+
+school_data_dict,colnames = preprocess_data(data_df=input_data_df,output_path=OUT_FILE_PATH)
+
+MODELS = {}
 # would use iteritems, but what if i want to port to python 3.5
 for school,feature_label_d in school_data_dict.items():
 
-	features = feature_label_d['features']
-	labels = feature_label_d['labels']
+	features = feature_label_d['features'].values
+	labels = feature_label_d['labels'].values
 
 	print "Number of Samples for {}: {}\n".format(school,features.shape[0])
 
 	# test model against train data. we are using ALL of the data for training. 
 	# Not splitting for cross validation because the dataset for each school is TINY
-	predicted_labels_lr = linear_regression_pred(features,labels)
+	# predicted_labels_lr = linear_regression_pred(features,labels)
 
-	predicted_labels_ridge = linear_ridge_pred(features,labels)
+	# predicted_labels_ridge = linear_ridge_pred(features,labels)
 
-	predicted_labels_ridge_cv = linear_ridge_cv_pred(features,labels)
+	# predicted_labels_ridge_cv = linear_ridge_cv_pred(features,labels)
 
+	# predicted_labels_gboost = gboosting_pred(features,labels)
+
+
+	model = fit_train_test_cv(X_train=features,Y_labels=labels,column_names=colnames)
+
+
+	real_gb,preds_gb = gboosting_train_test(features,labels)
 
 	# display metrics for predicting on the training data for each model
-	display_metrics("Linear Regression for {}".format(school),predicted_labels_lr,labels)
 
-	display_metrics("Ridge for {}".format(school),predicted_labels_ridge,labels)
+	display_metrics("Gboost Regression for {}".format(school),preds_gb,real_gb)
 
-	display_metrics("Ridge with Parameter Tuning for {}".format(school),predicted_labels_ridge_cv,labels)
+	# display_metrics("Linear Regression for {}".format(school),predicted_labels_lr,labels)
+
+	# display_metrics("Ridge for {}".format(school),predicted_labels_ridge,labels)
+
+	# display_metrics("Ridge with Parameter Tuning for {}".format(school),predicted_labels_ridge_cv,labels)
+
+	MODELS[school] = model
+
+def find_my_chances(gpa,gmat,age,race,university,major,gender):
+
+	# create list of strings to trigger the applicant profile parsing
+	gpa_str = "{} GPA".format(gpa)
+	gmat_str = "{} GMAT".format(gmat)
+	demo_str = "{a} year old {r} {g}".format(a=age,r=race,g=gender)
+	school_info = "Degree in {m} at {uni} (University)".format(m=major,uni=university)
+
+	app_profile = [gpa_str,gmat_str,demo_str,school_info]
+	odds = ""
+	for school in TARGET_LABELS:
+		odds += "{}: 0.0\n".format(school)
+	ap = ApplicantProfile(app_profile,odds)
+
+
+
+	d = {}
+	d["GMAT"] = ap.gmat_score
+	d["GPA"] = ap.gpa
+	d["UNIVERSITY"] = ap.uni
+	d["MAJOR"] = ap.major
+	d["JOBTITLE"] = ap.job_title
+	d["GENDER"] = ap.gender
+	d["RACE"] = ap.race
+	d["AGE"] = ap.age
+	d["INTERNATIONAL"] = ap.international
+	d["ODDS"] = ap.odds.encode('utf-8').strip()
+
+	df = pd.DataFrame(d,index=[0])
+	schooldata_dict,mycolnames = preprocess_data(df)
+
+
+	print("\n {d}".format(d=d))
+	for school,indf in schooldata_dict.items():
+
+		# if missing any columns from training set, add them w/ dummy vals
+		for col in colnames:
+			if col not in indf['features'].columns:
+				indf['features'][col] = 0.0
+
+		features_df = indf['features'][colnames]
+
+
+		chance = MODELS[school].predict(indf['features'].values)
+
+		print("{s} odds: {c}".format(s=school,c=chance))
+
+
+find_my_chances(
+	gpa=4.0,
+	gmat=800,
+	age=21,
+	race='black',
+	university='stanford university',
+	major='chemical engineering',
+	gender='male')
+
+
+
 
 
 
