@@ -112,7 +112,7 @@ def _reduce_majors_dimensionality(data):
 
 	reduced_df = drop_major_df.join(pd.DataFrame({'MAJOR':reduced_majors_df}))
 
-	print reduced_df
+	# print reduced_df
 
 	return reduced_df
 
@@ -175,6 +175,9 @@ def preprocess_data_4_catboost(data_df,output_path=None):
 				standard_school_name = SCHOOLS_REVERSED[school_or_perc]
 				# insert the specific name value for the correct row
 				new_df_w_labels.at[idx,standard_school_name] = _parse_str_nums(perc)
+
+
+	new_df_w_labels = _reduce_majors_dimensionality(new_df_w_labels)
 
 	
 	#drop unused columns
@@ -242,6 +245,7 @@ def preprocess_data(data_df,output_path=None):
 	Since each school uses its own model, each school also needs its
 	own set of features/labels
 	"""
+
 	new_df_w_labels = data_df.copy()
 	for idx,odds_string in data_df.ODDS.iteritems():
 		# skip data qual errors and abnormalities
@@ -260,7 +264,7 @@ def preprocess_data(data_df,output_path=None):
 				new_df_w_labels.at[idx,standard_school_name] = _parse_str_nums(perc)
 
 	# dataset currently has a ton of majors as categories. try combining them into STEM/NonSTEM to reduce dimensionality
-	# new_df_w_labels = _reduce_majors_dimensionality(new_df_w_labels)
+	new_df_w_labels = _reduce_majors_dimensionality(new_df_w_labels)
 	df_processed = _drop_unused_and_expand_categorical_columns(new_df_w_labels)
 
 	# write dataframe to csv after processing for debugging and things
@@ -269,6 +273,7 @@ def preprocess_data(data_df,output_path=None):
 
 
 	# a dataframe of ONLY the features
+
 	features_only_df = df_processed.drop(TARGET_LABELS,axis=1,inplace=False)
 	# determine the columns that are features by subtracting from labels
 	feature_cols = set(df_processed.columns) - set(TARGET_LABELS)
@@ -285,15 +290,15 @@ def preprocess_data(data_df,output_path=None):
 		# drop the NaNs from the dataset in any feature column or label. otherwise model training will fail
 		df_for_school.dropna(inplace=True)
 		# store the features as a numpy ndarray to be fed directly to model training
-		school_dict['features'] = df_for_school.drop([school],axis=1,inplace=False).values
+		school_dict['features'] = df_for_school.drop([school],axis=1,inplace=False)
 		# store the labels for a particular school as a numpy ndarray to be fed directly to model training
-		school_dict['labels'] = df_for_school.drop(feature_cols,axis=1,inplace=False).values
+		school_dict['labels'] = df_for_school.drop(feature_cols,axis=1,inplace=False)
 		# store the FEATURES & LABELS for a PARTICULAR SCHOOL in the dictionary 
 		multi_data_set_dict[school] = school_dict
 
 
-
-	return multi_data_set_dict
+	feature_col_names = features_only_df.columns
+	return multi_data_set_dict,feature_col_names
 
 
 
