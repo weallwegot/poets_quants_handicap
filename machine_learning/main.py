@@ -7,15 +7,25 @@ from models import fit_train_test_cv,gboosting_train_test,catboost_pred,gboostin
 from ML_AP import ApplicantProfile
 from constants import SCHOOLS_REVERSED, TARGET_LABELS
 
+from sklearn.linear_model import LinearRegression, SGDRegressor, ElasticNet, Lasso, Ridge, RidgeCV
+from sklearn.ensemble import GradientBoostingRegressor
+
+
 
 OUT_DIR = os.path.join(os.path.dirname(__file__),'data_out')
 
 IN_FILE_NAME = 'pq_data_4_24_18.csv'
-# IN_FILE_NAME = 'pq_data_10_20_17.csv'
+IN_FILE_NAME2 = 'pq_data_10_20_17.csv'
 IN_FILE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)),'data_out',IN_FILE_NAME)
+IN_FILE_PATH2 = os.path.join(os.path.dirname(os.path.dirname(__file__)),'data_out',IN_FILE_NAME2)
+
 OUT_FILE_PATH = os.path.join(OUT_DIR,"{}_processed.csv".format(IN_FILE_NAME.replace('.csv','')))
 input_data_df = pd.read_csv(IN_FILE_PATH)
+other_data_df = pd.read_csv(IN_FILE_PATH2)
 
+combined_df = input_data_df.append(other_data_df)
+
+combined_df.reset_index(inplace=True)
 
 
 # catboost_data_dict = preprocess_data_4_catboost(data_df=input_data_df)
@@ -30,7 +40,7 @@ input_data_df = pd.read_csv(IN_FILE_PATH)
 
 
 
-school_data_dict,colnames = preprocess_data(data_df=input_data_df,output_path=OUT_FILE_PATH)
+school_data_dict,colnames = preprocess_data(data_df=combined_df,output_path=OUT_FILE_PATH)
 
 MODELS = {}
 # would use iteritems, but what if i want to port to python 3.5
@@ -52,14 +62,14 @@ for school,feature_label_d in school_data_dict.items():
 	# predicted_labels_gboost = gboosting_pred(features,labels)
 
 
-	model = fit_train_test_cv(X_train=features,Y_labels=labels,column_names=colnames)
+	model = fit_train_test_cv(model_obj=ElasticNet(),X_train=features,Y_labels=labels,column_names=colnames)
 
 
-	real_gb,preds_gb = gboosting_train_test(features,labels)
+	#real_gb,preds_gb = gboosting_train_test(features,labels)
 
 	# display metrics for predicting on the training data for each model
 
-	display_metrics("Gboost Regression for {}".format(school),preds_gb,real_gb)
+	#display_metrics("Gboost Regression for {}".format(school),preds_gb,real_gb)
 
 	# display_metrics("Linear Regression for {}".format(school),predicted_labels_lr,labels)
 
@@ -110,6 +120,8 @@ def find_my_chances(gpa,gmat,age,race,university,major,gender):
 				indf['features'][col] = 0.0
 
 		features_df = indf['features'][colnames]
+
+		#print(features_df)
 
 
 		chance = MODELS[school].predict(indf['features'].values)
