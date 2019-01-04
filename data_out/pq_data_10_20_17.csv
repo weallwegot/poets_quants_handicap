@@ -205,7 +205,7 @@ GMAT,GPA,UNIVERSITY,MAJOR,JOBTITLE,GENDER,RACE,AGE,INTERNATIONAL,ODDS
 760,3.74,Tier 3,Engineering,,,Asian,3,,Harvard: 20% MIT: 30% to 50%
 690,2.96,Tier 3,Economics,,,Asian,3.6,,Harvard: 20% to 30% Stanford: 10% to 15% Wharton: 35% to 40% Northwestern: 35% to 45% Virginia: 50+% Duke: 50+%
 730,3.47,Tier 1,,,,Asian,3,,Harvard: 30% Stanford: 25% Wharton: 35% Kellogg: 40% to 45+% Columbia: 35+% Tuck: 40% to 45+%
-710,3.71,Tier 3,Business,,,Asian,100,,Harvard: 40+% Stanford: 35+% Wharton: 45+% Chicago: 50+% Kellogg: 50+% Carnegie Mellon: 60+% Michigan: 60+% Columbia: 50+% New York: 60+%
+710,3.71,Tier 3,Business,,,Black,26,,Harvard: 40+% Stanford: 35+% Wharton: 45+% Chicago: 50+% Kellogg: 50+% Carnegie Mellon: 60+% Michigan: 60+% Columbia: 50+% New York: 60+%
 730,3.05,Tier 3,Engineering,,MALE,Asian,27,,Chicago: 20% to 40% Kellogg: 20% to 40% Michigan: 30% to 50% Dartmouth: 20% to 30% Berkeley: 30% to 50% MIT: 10% to 20% Carnegie Mellon: 30% to 50% INSEAD: 40% to 50%
 700,3.9,Tier 3,,,Female,Asian,30,,Harvard: 25% to 35% Stanford: 10% to 30% Wharton: 30% to 40% Northwestern: 40% to 50% Columbia: 30% to 40% Dartmouth: 30% to 40% Yale: 40% to 50%
 710,3.0,Tier 3,Economics,,Female,Asian,26,,Harvard: 15% Stanford: 10% Columbia: 20% New York University: 30%

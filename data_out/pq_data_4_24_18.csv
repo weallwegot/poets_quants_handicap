@@ -423,7 +423,7 @@ Chicago: 40% to 50%
 Northwestern: 40% to 50%
 Georgetown: 70%+
 Maryland: 80%+"
-,3.3,Tier 3,Engineering,,,,24,,"Harvard: 10% to 20%
+720,3.3,Tier 3,Engineering,,,,24,,"Harvard: 10% to 20%
 Stanford: 10%
 Oxford: 40%+
 Columbia: 30% to 35%
@@ -434,7 +434,7 @@ Northwestern: 40% to 50%"
 Chicago: 50%+
 Northwestern: 50%+
 Michigan: 60%+"
-800,3.67,Tier 3,,,Female,White,25,,"Yale: 20%
+660,3.67,Tier 3,,,Female,White,25,,"Yale: 20%
 Berkeley: 40%
 Northwestern: 30% to 40%
 Dartmouth: 20%
@@ -495,7 +495,7 @@ Stanford: 20%
 Wharton: 30%
 Berkeley: 40%+
 UCLA: 40%+"
-800,3.6,Tier 3,Finance,,MALE,Asian,25,,"Harvard: 20% to 30%
+760,3.6,Tier 3,Finance,,MALE,Asian,25,,"Harvard: 20% to 30%
 Wharton: 30% to 40%
 Columbia (early decision): 50%+
 NYU: 50%"
@@ -510,7 +510,7 @@ Columbia: 20%"
 Stanford: 10%
 London: 30%
 INSEAD: 30% to 40%"
-800,3.78,Tier 3,Finance,,MALE,,27,,"Harvard: 40%
+740,3.78,Tier 3,Finance,,MALE,Native American,27,,"Harvard: 40%
 Stanford: 20% to 30%
 Wharton: 40% to 50%
 Chicago: 50%
@@ -530,7 +530,7 @@ Indiana: 30%
 Notre Dame: 30%+
 Washington Univ.: 30%+
 Univ. of Washington: 30%+"
-800,3.22,Tier 3,Finance,,MALE,,26,,"Wharton: 10% to 20%
+710,3.22,Tier 3,Finance,,MALE,,26,,"Wharton: 10% to 20%
 MIT: 10% to 15%
 Columbia: 10% to 20%
 Chicago: 10% to 20%
@@ -552,7 +552,7 @@ Columbia: 20% to 30%
 Virginia: 30%+
 INSEAD: 40%+
 London: 40%"
-800,3.6,Tier 1,Engineering,,Female,,24,,"Harvard: 30% to 40%
+740,3.6,Tier 1,Engineering,,Female,,24,,"Harvard: 30% to 40%
 Stanford: 20%
 MIT Sloan: 40%
 UC-Berkeley: 40% to 50%
@@ -573,13 +573,13 @@ MIT: 40%
 Yale: 40% to 50%
 NYU: 50%+
 Duke: 50%+"
-800,3.75,Tier 3,Economics,,,,,,"Columbia: 40% (Early Decision)
+720,3.75,Tier 3,Economics,,,,,,"Columbia: 40% (Early Decision)
 Wharton: 30%
 MIT: 25%
 Yale: 40%+
 NYU: 50%
 Georgetown: 50%+"
-800,3.18,Tier 3,,,Female,White,28,,"Harvard: 25% to 30%
+750,3.18,Tier 3,,,Female,White,28,,"Harvard: 25% to 30%
 Stanford: 15% to 20%
 Northwestern: 40% to 50%
 Dartmouth: 40% to 50%
@@ -590,7 +590,7 @@ Indiana: 50%
 Emory: 50%
 Michigan: 40% to 50%
 Washington: 50%"
-800,3.7,Tier 3,Engineering,,Female,Asian,25,,"Harvard: 30% to 40%
+730,3.7,Tier 3,Engineering,,Female,Asian,25,,"Harvard: 30% to 40%
 Stanford: 20%
 Wharton: 30% to 40%
 Chicago: 30% to 40%
@@ -610,11 +610,11 @@ Dartmouth: 30% to 40%
 Yale: 40%
 Northwestern: 40%
 Cornell: 40%+"
-,8.7,Tier 3,Engineering,,,,,,"Harvard 2+2: 1%
+690,3.7,Tier 3,Engineering,,,,,,"Harvard 2+2: 1%
 Stanford (deferred admissions): 1%
 Yale Silver Scholar: 0%"
 ,4.18,Tier 3,,,Female,Asian,24,,Stanford: 10% to 20%
-,3.74,Tier 3,Philosophy,,MALE,White,29,,"Harvard: 30%
+700,3.74,Tier 3,Philosophy,,MALE,White,29,,"Harvard: 30%
 Dartmouth: 40% to 50%.
 Yale:
 Duke: 50%+
@@ -622,7 +622,7 @@ Virginia: 50%+
 Cornell: 50%+
 UNC: 50%+
 Georgetown: 50%+"
-800,3.2,Tier 3,,,Female,Asian,25,,"Harvard: 30% to 40%
+740,3.2,Tier 3,,,Female,Asian,25,,"Harvard: 30% to 40%
 Wharton: 30% to 40%
 Northwestern: 50%+
 Stanford: 20%
@@ -633,7 +633,7 @@ Berkeley: 20%
 New York: 30%
 USC: 30%
 London: 20% to 30%"
-800,3.5,Tier 3,,,,,26,,"MIT: 30%
+760,3.5,Tier 3,STEM,,,,26,,"MIT: 30%
 Northwestern: 30% to 40%
 Chicago: 30% to 40%
 Harvard: 25% to 30%
@@ -654,19 +654,19 @@ Dartmouth: 20% to 25%
 Columbia: 20%
 Yale: 20%
 Virginia: 30% to 40%"
-800,3.5,Tier 3,Engineering,,MALE,White,25,,"Harvard: 40%+
+770,3.5,Tier 3,Engineering,,MALE,White,25,,"Harvard: 40%+
 Stanford: 25% to 30%
 Wharton: 50%+
 MIT: 50%+
 Yale: 50%+"
-800,7.1,Tier 3,Business,,MALE,,29,,"INSEAD: 50%+
+750,7.1,Tier 3,Business,,MALE,,29,,"INSEAD: 50%+
 MIT: 30% to 40%
 Northwestern: 50%
 Dartmouth: 30% to 40%
 Duke: 50%+
 Michigan: 50%+
 Virginia: 50%+"
-800,3.8,Tier 3,,,MALE,,25,,"Harvard: 20% to 25%
+710,3.8,Tier 3,,,MALE,,25,,"Harvard: 20% to 25%
 Stanford: 15%
 Chicago: 30%
 Northwestern: 30%
