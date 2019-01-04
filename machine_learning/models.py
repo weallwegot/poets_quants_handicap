@@ -36,9 +36,11 @@ def fit_train_test_cv(X_train,Y_labels,column_names,model_obj=None):
 	
 	print("CV Score : Mean {} | Std {}| Min {} | Max {}".format(np.mean(cv_score),np.std(cv_score),np.min(cv_score),np.max(cv_score)))
 
-
-	feat_imp = pd.Series(model_obj.feature_importances_, column_names).sort_values(ascending=False)
-	print(feat_imp)
+	try:
+		feat_imp = pd.Series(model_obj.feature_importances_, column_names).sort_values(ascending=False)
+		print(feat_imp)
+	except AttributeError as ae:
+		pass
 	#feat_imp.plot(kind='bar', title='Feature Importances')
 	#plt.ylabel('Feature Importance Score')
 
