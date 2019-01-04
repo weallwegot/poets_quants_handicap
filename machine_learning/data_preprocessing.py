@@ -127,7 +127,7 @@ def _reduce_race_dimensionality(data):
 	Thus we are reducing the dimensionality by combining all the underrepresented into one category
 	and all the others into another
 	"""
-	underrepresented = ['Black','Latinx']
+	underrepresented = ['Black','Latinx','Native American']
 	# get all the non-under represented races
 	non_underrepresented = list(set(list(data.RACE.values)) - set(underrepresented))
 
@@ -340,7 +340,7 @@ def preprocess_data(data_df,output_path=None):
 	# write dataframe to csv after processing for debugging and things
 	if output_path:
 		df_processed.to_csv(output_path)
-		
+
 	# a dataframe of ONLY the features
 
 	features_only_df = df_processed.drop(TARGET_LABELS,axis=1,inplace=False)
