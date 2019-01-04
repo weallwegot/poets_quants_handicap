@@ -86,7 +86,7 @@ class ApplicantProfile():
 			return 'Public Policy'
 		elif 'JOURNAL' in su:
 			return 'Jouranlism'
-		elif 'SCIENCE' in su or 'BIOLOGY' in su or 'CHEMISTRY' in su or 'PHYSIC' in su:
+		elif 'SCIENCE' in su or 'BIOLOGY' in su or 'CHEMISTRY' in su or 'PHYSIC' in su or 'MATH' in su:
 			return 'STEM'
 		elif 'FROM' in su:
 			split_major = su.split('FROM')
@@ -162,7 +162,7 @@ class ApplicantProfile():
 		s = uni_str.upper()
 		# need to rework to have this be a list that allows you to update and add more entries
 		# this methodology is pretty bad. right now but ok for first pass.
-		if ('IVY' in s and not 'NEAR' in s) or ('M.I.T' in s) or ('COLUMBIA' in s) or ('YALE' in s):
+		if ('IVY' in s and not 'NEAR' in s) or ('M.I.T' in s) or ('COLUMBIA' in s) or ('YALE' in s) or ('STANFORD' in s) or ('HARVARD' in s)::
 			return 'Tier 1'
 		elif 'NEAR' in s and 'IVY' in s:
 			return 'Tier 2'
