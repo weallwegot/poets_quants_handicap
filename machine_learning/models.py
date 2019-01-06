@@ -1,3 +1,4 @@
+import pdb
 import pandas as pd
 import numpy as np
 
@@ -22,20 +23,48 @@ def fit_train_test_cv(X_train,Y_labels,column_names,model_obj=None):
 		model_obj = GradientBoostingRegressor()
 
 
-	model_obj.fit(X_train,Y_labels)
-	pred_labels = model_obj.predict(X_train)
+	#model_obj.fit(X_train,Y_labels)
+	#pred_labels = model_obj.predict(X_train)
 
-	cv_score = cross_val_score(model_obj, X_train, Y_labels, cv=5,scoring='neg_mean_squared_error')
+	#cv_score = cross_val_score(model_obj, X_train, Y_labels, cv=5,scoring='neg_mean_squared_error')
+
+	splitter = ShuffleSplit(test_size=0.15,n_splits=50)
+	# this creates multiple splits (im using it wrong i know)
+	rmses = []
+	for trn,tst in splitter.split(X_train,Y_labels):
+		train_idx = trn
+		test_idx = tst
+
+		# train_idx,test_idx = splitter.split(X_train,Y_labels)
+
+		#gboost_model = GradientBoostingRegressor()
+		model_obj.fit(X_train[train_idx],Y_labels[train_idx])
+
+		pred_labels = model_obj.predict(X_train[test_idx])
+
+		real_labels = Y_labels[test_idx]
+
+		#z = np.sqrt( np.sum((real_labels-pred_labels)**2.)/(len(real_labels))  )
+
+		#print("Number of Test Samples: {}".format(len(real_labels)))
+		z = np.sqrt(np.sum((real_labels.flatten()-pred_labels)**2)/len(pred_labels))
 
 
+		#pdb.set_trace()
 
-	print("Model Report \n")
+		#print("RMSE: {}".format(z))
+		rmses.append(z)
+
+	print("Median RMSE: {}".format(np.median(rmses)))
+
+	#print("Model Report \n")
 	#print("Accuracy: {}".format(metrics.accuracy_score(Y_labels, pred_labels)))
 	# print("RMSE: {}".format(metrics.mean_squared_error(y_true=Y_labels,y_pred=pred_labels)))
 
 	
-	print("CV Score : Mean {} | Std {}| Min {} | Max {}".format(np.mean(cv_score),np.std(cv_score),np.min(cv_score),np.max(cv_score)))
+	#print("CV Score : Mean {} | Std {}| Min {} | Max {}".format(np.mean(cv_score),np.std(cv_score),np.min(cv_score),np.max(cv_score)))
 
+	print("{}".format(column_names))
 	try:
 		feat_imp = pd.Series(model_obj.feature_importances_, column_names).sort_values(ascending=False)
 		print(feat_imp)
