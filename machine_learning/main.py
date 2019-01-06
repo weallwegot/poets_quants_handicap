@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+import numpy as np
 
 from data_preprocessing import preprocess_data, preprocess_data_4_catboost
 from models import fit_train_test_cv,gboosting_train_test,catboost_pred,gboosting_pred,linear_regression_pred,linear_ridge_pred,linear_ridge_cv_pred,display_metrics
@@ -51,6 +52,9 @@ for school,feature_label_d in school_data_dict.items():
 
 	print "Number of Samples for {}: {}\n".format(school,features.shape[0])
 
+	# drop indices from the model
+	features = np.delete(features,0,axis=1)
+
 	# test model against train data. we are using ALL of the data for training. 
 	# Not splitting for cross validation because the dataset for each school is TINY
 	# predicted_labels_lr = linear_regression_pred(features,labels)
@@ -62,7 +66,8 @@ for school,feature_label_d in school_data_dict.items():
 	# predicted_labels_gboost = gboosting_pred(features,labels)
 
 
-	model = fit_train_test_cv(model_obj=ElasticNet(),X_train=features,Y_labels=labels,column_names=colnames)
+	# colnames[1:] so you dont include index
+	model = fit_train_test_cv(model_obj=ElasticNet(),X_train=features,Y_labels=labels,column_names=colnames[1:])
 
 
 	#real_gb,preds_gb = gboosting_train_test(features,labels)
@@ -124,7 +129,15 @@ def find_my_chances(gpa,gmat,age,race,university,major,gender):
 		#print(features_df)
 
 
-		chance = MODELS[school].predict(indf['features'].values)
+		df2predictfrom = indf['features'].values
+		df2predictfrom = np.delete(df2predictfrom,0,axis=1)
+
+		chance = MODELS[school].predict(df2predictfrom)
+		try:
+			pass
+			print("Coefficients: {}".format(MODELS[school].coef_))
+		except AttributeError as ae:
+			continue
 
 		print("{s} odds: {c}".format(s=school,c=chance))
 
@@ -137,9 +150,4 @@ find_my_chances(
 	university='stanford university',
 	major='chemical engineering',
 	gender='male')
-
-
-
-
-
 
