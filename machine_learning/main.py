@@ -42,7 +42,7 @@ combined_df.reset_index(inplace=True)
 
 
 school_data_dict,colnames = preprocess_data(data_df=combined_df,output_path=OUT_FILE_PATH)
-
+print(colnames)
 MODELS = {}
 # would use iteritems, but what if i want to port to python 3.5
 for school,feature_label_d in school_data_dict.items():
@@ -67,7 +67,7 @@ for school,feature_label_d in school_data_dict.items():
 
 
 	# colnames[1:] so you dont include index
-	model = fit_train_test_cv(model_obj=ElasticNet(),X_train=features,Y_labels=labels,column_names=colnames[1:])
+	model = fit_train_test_cv(model_obj=None,X_train=features,Y_labels=labels,column_names=colnames[1:])
 
 
 	#real_gb,preds_gb = gboosting_train_test(features,labels)
@@ -124,22 +124,24 @@ def find_my_chances(gpa,gmat,age,race,university,major,gender):
 			if col not in indf['features'].columns:
 				indf['features'][col] = 0.0
 
+
 		features_df = indf['features'][colnames]
 
 		#print(features_df)
 
 
-		df2predictfrom = indf['features'].values
+		df2predictfrom = features_df.values
 		df2predictfrom = np.delete(df2predictfrom,0,axis=1)
 
 		chance = MODELS[school].predict(df2predictfrom)
 		try:
 			pass
-			print("Coefficients: {}".format(MODELS[school].coef_))
+			#print("Coefficients: {}".format(MODELS[school].coef_))
 		except AttributeError as ae:
 			continue
 
-		print("{s} odds: {c}".format(s=school,c=chance))
+		if school in ['Harvard','Wharton','Stanford','Booth']:
+			print("{s} odds: {c}".format(s=school,c=chance))
 
 
 find_my_chances(

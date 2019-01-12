@@ -190,7 +190,7 @@ def _drop_unused_and_expand_categorical_columns(data):
 	Expand categorical datas so they can be represented numerically
 	"""
 	#drop unused columns
-	data_after_drop = data.drop(['ODDS','INTERNATIONAL','JOBTITLE'],axis=1,inplace=False)
+	data_after_drop = data.drop(['ODDS','INTERNATIONAL','JOBTITLE','AGE'],axis=1,inplace=False)
 	# dropped_data = data.drop(['ODDS','INTERNATIONAL','JOBTITLE','UNIVERSITY','MAJOR','GENDER','RACE'],axis=1,inplace=False)
 
 	# #change categorical data into numeric
