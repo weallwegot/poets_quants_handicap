@@ -28,7 +28,7 @@ def fit_train_test_cv(X_train,Y_labels,column_names,model_obj=None):
 
 	#cv_score = cross_val_score(model_obj, X_train, Y_labels, cv=5,scoring='neg_mean_squared_error')
 
-	splitter = ShuffleSplit(test_size=0.15,n_splits=50)
+	splitter = ShuffleSplit(test_size=0.05,n_splits=10)
 	# this creates multiple splits (im using it wrong i know)
 	rmses = []
 	for trn,tst in splitter.split(X_train,Y_labels):
@@ -56,6 +56,9 @@ def fit_train_test_cv(X_train,Y_labels,column_names,model_obj=None):
 		rmses.append(z)
 
 	print("Median RMSE: {}".format(np.median(rmses)))
+	print("pred_labels: {}".format(pred_labels))
+	print("real_labels: {}".format(real_labels.flatten()))
+	print("Differences: {}".format((real_labels.flatten()-pred_labels)))
 
 	#print("Model Report \n")
 	#print("Accuracy: {}".format(metrics.accuracy_score(Y_labels, pred_labels)))
