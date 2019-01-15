@@ -11,6 +11,9 @@ import re
 import pdb
 import pickle
 
+from ML_AP import ApplicantProfile
+
+
 
 logging.basicConfig(format='%(asctime)s %(message)s',
  datefmt='%m/%d/%Y %I:%M:%S %p',
@@ -34,7 +37,7 @@ CORS(app)
 # the directory of the curent file
 working_dir = os.path.dirname(os.path.abspath(__file__))
 # the data folder
-data_folder_path = working_dir + os.sep + "models"
+data_folder_path = working_dir + os.sep + "models" + os.sep
 
 """
 LyricalApi class takes a GET request
@@ -44,6 +47,13 @@ if its not, look up random lyric from Cardi B
 
 TODO: use jsonify instead of this weird lil custom dictionary thing, no?
 """
+
+def return_constructor(code,body):
+    return {
+            'code':code
+            'body':body
+            }
+
 class ModelMBAApi(Resource):
     def post(self):
         json_data = request.get_json()
@@ -52,20 +62,69 @@ class ModelMBAApi(Resource):
 
         school_model = load_model(school)
 
-        chance = find_my_chances(
-            school = school_model,
-            gpa=json_data['gpa'],
-            gmat=json_data['gmat'],
-            age=json_data['age'],
-            race=json_data['race'],
-            university=json_data['university'],
-            major=json_data['major'],
-            gender=json_data['male'])
+        if school_model:
+            is_direct_input = check_input_type(json_data)
+
+            if is_direct_input:
+
+                # features basically preprocessed already
+                chance = find_my_chances_with_direct_inputs(
+                    school = school_model,
+                    gpa=json_data['gpa'],
+                    gmat=json_data['gmat'],
+                    age=json_data['age'],
+                    race=json_data['race'],
+                    university=json_data['university'],
+                    major=json_data['major'],
+                    gender=json_data['male']) 
+
+            else:
+                # need to parse inputs to create features
+                chance = find_my_chances_with_parsing(
+                    school = school_model,
+                    gpa=json_data['gpa'],
+                    gmat=json_data['gmat'],
+                    age=json_data['age'],
+                    race=json_data['race'],
+                    university=json_data['university'],
+                    major=json_data['major'],
+                    gender=json_data['male'])
+
+        else:
+            return return_constructor(500,'{} is not a valid school option'.format(school))
+
+def is_direct_input(data_from_post):
+    """check if the input data type can be used directly in a model
+    
+    Arguments:
+        data_from_post {[dict]} -- dictionary is of course
+    """
+
+    for k,v in data_from_post.iteritems():
+        if not v.isnumeric() and not k.upper() == 'SCHOOL' :
+            return False
+
 
 def load_model(school):
     """
     Load model for a particular school from local filesystem
     """
+    school_model = None
+
+    model_path = data_folder_path + os.sep + school + '.pickle'
+
+    try:
+
+        school_model = pickle.loads(model_path)
+
+    except ValueError as ve:
+
+        logger.error('Model for {s} is not available at {p}'
+            .format(s=school,p=model_path))
+
+        school_model = None
+
+    return school_model
 
 
 
