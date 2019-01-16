@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from flask import Flask, request, url_for, render_template
 from flask import jsonify, session, current_app
 from flask_restful import reqparse, abort, Api, Resource
@@ -10,16 +11,29 @@ import logging
 import re
 import pdb
 import pickle
+import numpy as np
 
 from ML_AP import ApplicantProfile
 
 ORDERED_FEATURE_INPUTS = ['gpa', 'gmat', 'age', 'race', 'university', 'major', 'gender']
 
 
-logging.basicConfig(format='%(asctime)s %(message)s',
-                    datefmt='%m/%d/%Y %I:%M:%S %p',
-                    filename='modelMBA.log',
-                    level=logging.DEBUG)
+# create logger with 'spam_application'
+logger = logging.getLogger('mba_models')
+logger.setLevel(logging.DEBUG)
+# create file handler which logs even debug messages
+fh = logging.FileHandler('modelMBA.log')
+fh.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+# create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+# add the handlers to the logger
+logger.addHandler(fh)
+logger.addHandler(ch)
 
 app = Flask(__name__)
 # the directory of the curent file
@@ -52,7 +66,7 @@ TODO: use jsonify instead of this weird lil custom dictionary thing, no?
 
 def return_constructor(code, body):
     return {
-        'code': code
+        'code': code,
         'body': body
     }
 
@@ -61,15 +75,19 @@ class ModelMBAApi(Resource):
 
     def post(self):
         json_data = request.get_json()
+        logger.debug('json data received: {}'.format(json_data))
 
-        school = json_data['school']
+        try:
+            school = json_data['school']
+        except KeyError:
+            logger.info('No school included, defaulting to Stanford')
+            school = 'stanford'
 
         school_model = load_model(school)
 
         if school_model:
-            is_direct_input = check_input_type(json_data)
 
-            if is_direct_input:
+            if is_direct_input(json_data):
 
                 # features basically preprocessed already
                 chance = find_my_chances_with_direct_inputs(
@@ -94,6 +112,9 @@ class ModelMBAApi(Resource):
 
         else:
             return return_constructor(500, '{} is not a valid school option'.format(school))
+
+    def get(self):
+        return return_constructor(500, 'Get methods are not available, please provide a post body.')
 
 
 def is_number(s):
@@ -122,21 +143,30 @@ def is_direct_input(data_from_post):
 
     for k, v in data_from_post.iteritems():
 
-        if not is_number(v) and not k.upper() == 'SCHOOL':
+        if k.upper() == 'SCHOOL':
+            continue
+        if not is_number(v):
             return False
+
+    logger.info('numeric only input: {}'.format(data_from_post))
+
+    return True
 
 
 def load_model(school):
     """
     Load model for a particular school from local filesystem
     """
+    logger.debug('loading model for: {}'.format(school))
+
     school_model = None
 
-    model_path = data_folder_path + os.sep + school + '.pickle'
-
+    #model_path = data_folder_path + os.sep + school + '.pickle'
+    model_path = os.path.join(data_folder_path, '{}.pickle'.format(school))
+    logger.info('loading from: {}'.format(model_path))
     try:
-
-        school_model = pickle.loads(model_path)
+        with open(model_path, 'rb') as f_h:
+            school_model = pickle.load(f_h)
 
     except ValueError as ve:
 
