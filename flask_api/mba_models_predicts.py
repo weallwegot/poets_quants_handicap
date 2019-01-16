@@ -81,7 +81,7 @@ class ModelMBAApi(Resource):
             else:
                 # need to parse inputs to create features
                 chance = find_my_chances_with_parsing(
-                    school = school_model,
+                    SCHOOL_MODEL = school_model,
                     gpa=json_data['gpa'],
                     gmat=json_data['gmat'],
                     age=json_data['age'],
@@ -129,7 +129,7 @@ def load_model(school):
 
 
 
-def find_my_chances(school,gpa,gmat,age,race,university,major,gender):
+def find_my_chances_with_parsing(school,gpa,gmat,age,race,university,major,gender,SCHOOL_MODEL):
 
     # create list of strings to trigger the applicant profile parsing
     gpa_str = "{} GPA".format(gpa)
@@ -164,6 +164,7 @@ def find_my_chances(school,gpa,gmat,age,race,university,major,gender):
     print("\n {d}".format(d=d))
     for school,indf in schooldata_dict.items():
 
+
         # if missing any columns from training set, add them w/ dummy vals
         for col in colnames:
             if col not in indf['features'].columns:
@@ -178,25 +179,14 @@ def find_my_chances(school,gpa,gmat,age,race,university,major,gender):
         df2predictfrom = features_df.values
         df2predictfrom = np.delete(df2predictfrom,0,axis=1)
 
-        chance = MODELS[school].predict(df2predictfrom)
-        try:
-            pass
-            #print("Coefficients: {}".format(MODELS[school].coef_))
-        except AttributeError as ae:
-            continue
+        chance = SCHOOL_MODEL.predict(df2predictfrom)
 
-        if school in ['Harvard','Wharton','Stanford','Booth']:
-            print("{s} odds: {c}".format(s=school,c=chance))
-
-
-
+        return chance
 
 
 @app.route('/')
 def hello_world():
     return render_template('index.html')
-    #return 'Hello You Have Reached The Cardi B Lyrics Api, send a get request to "cardibbars.pythonanywhere.com/api/v1"!'
-
 
 
 api.add_resource(ModelMBAApi, '/api/v1')
