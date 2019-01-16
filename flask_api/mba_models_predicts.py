@@ -13,25 +13,26 @@ import pickle
 
 from ML_AP import ApplicantProfile
 
+ORDERED_FEATURE_INPUTS = ['gpa', 'gmat', 'age', 'race', 'university', 'major', 'gender']
 
 
 logging.basicConfig(format='%(asctime)s %(message)s',
- datefmt='%m/%d/%Y %I:%M:%S %p',
- filename='modelMBA.log',
- level=logging.DEBUG)
+                    datefmt='%m/%d/%Y %I:%M:%S %p',
+                    filename='modelMBA.log',
+                    level=logging.DEBUG)
 
 app = Flask(__name__)
 # the directory of the curent file
 working_dir = os.path.dirname(os.path.abspath(__file__))
-with open(working_dir+os.sep+'k.txt') as f:
+with open(working_dir + os.sep + 'k.txt') as f:
     k = f.read()
 content = k.strip()
 
 app.secret_key = content
 
-#api
+# api
 api = Api(app)
-#cors for cross origin headers
+# cors for cross origin headers
 CORS(app)
 
 # the directory of the curent file
@@ -48,13 +49,16 @@ if its not, look up random lyric from Cardi B
 TODO: use jsonify instead of this weird lil custom dictionary thing, no?
 """
 
-def return_constructor(code,body):
+
+def return_constructor(code, body):
     return {
-            'code':code
-            'body':body
-            }
+        'code': code
+        'body': body
+    }
+
 
 class ModelMBAApi(Resource):
+
     def post(self):
         json_data = request.get_json()
 
@@ -69,39 +73,56 @@ class ModelMBAApi(Resource):
 
                 # features basically preprocessed already
                 chance = find_my_chances_with_direct_inputs(
-                    school = school_model,
-                    gpa=json_data['gpa'],
-                    gmat=json_data['gmat'],
-                    age=json_data['age'],
-                    race=json_data['race'],
-                    university=json_data['university'],
-                    major=json_data['major'],
-                    gender=json_data['male']) 
+                    school=school_model,
+                    json_data=json_data
+                )
 
             else:
                 # need to parse inputs to create features
                 chance = find_my_chances_with_parsing(
-                    SCHOOL_MODEL = school_model,
+                    SCHOOL_MODEL=school_model,
                     gpa=json_data['gpa'],
                     gmat=json_data['gmat'],
                     age=json_data['age'],
                     race=json_data['race'],
                     university=json_data['university'],
                     major=json_data['major'],
-                    gender=json_data['male'])
+                    gender=json_data['male']
+                )
+
+            return return_constructor(200, {'chance': chance, 'school': school})
 
         else:
-            return return_constructor(500,'{} is not a valid school option'.format(school))
+            return return_constructor(500, '{} is not a valid school option'.format(school))
+
+
+def is_number(s):
+    """check if a data type is numeric
+    https://stackoverflow.com/questions/354038/how-do-i-check-if-a-string-is-a-number-float?page=1&tab=votes#tab-top
+
+    Arguments:
+        s {[int,float,str]} -- input to test
+
+    Returns:
+        bool -- [description]
+    """
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
 
 def is_direct_input(data_from_post):
     """check if the input data type can be used directly in a model
-    
+
     Arguments:
         data_from_post {[dict]} -- dictionary is of course
     """
 
-    for k,v in data_from_post.iteritems():
-        if not v.isnumeric() and not k.upper() == 'SCHOOL' :
+    for k, v in data_from_post.iteritems():
+
+        if not is_number(v) and not k.upper() == 'SCHOOL':
             return False
 
 
@@ -120,30 +141,52 @@ def load_model(school):
     except ValueError as ve:
 
         logger.error('Model for {s} is not available at {p}'
-            .format(s=school,p=model_path))
+                     .format(s=school, p=model_path))
 
         school_model = None
 
     return school_model
 
 
+def find_my_chances_with_direct_inputs(SCHOOL_MODEL, json_data):
+    """[summary]
+
+    [description]
+
+    Arguments:
+        school {[type]} -- [description]
+        gpa {[type]} -- [description]
+        gmat {[type]} -- [description]
+        age {[type]} -- [description]
+        race {[type]} -- [description]
+        university {[type]} -- [description]
+        major {[type]} -- [description]
+        gender {[type]} -- [description]
+        SCHOOL_MODEL {[type]} -- [description]
+    """
+
+    z = []
+    for x in ORDERED_FEATURE_INPUTS:
+        z.append(float(json_data[x]))
+
+    array_of_inputs = np.array(z)
+    chance = SCHOOL_MODEL.predict(array_of_inputs)
+    return chance
 
 
-def find_my_chances_with_parsing(school,gpa,gmat,age,race,university,major,gender,SCHOOL_MODEL):
+def find_my_chances_with_parsing(school, gpa, gmat, age, race, university, major, gender, SCHOOL_MODEL):
 
     # create list of strings to trigger the applicant profile parsing
     gpa_str = "{} GPA".format(gpa)
     gmat_str = "{} GMAT".format(gmat)
-    demo_str = "{a} year old {r} {g}".format(a=age,r=race,g=gender)
-    school_info = "Degree in {m} at {uni} (University)".format(m=major,uni=university)
+    demo_str = "{a} year old {r} {g}".format(a=age, r=race, g=gender)
+    school_info = "Degree in {m} at {uni} (University)".format(m=major, uni=university)
 
-    app_profile = [gpa_str,gmat_str,demo_str,school_info]
+    app_profile = [gpa_str, gmat_str, demo_str, school_info]
     odds = ""
     for school in TARGET_LABELS:
         odds += "{}: 0.0\n".format(school)
-    ap = ApplicantProfile(app_profile,odds)
-
-
+    ap = ApplicantProfile(app_profile, odds)
 
     d = {}
     d["GMAT"] = ap.gmat_score
@@ -157,27 +200,23 @@ def find_my_chances_with_parsing(school,gpa,gmat,age,race,university,major,gende
     d["INTERNATIONAL"] = ap.international
     d["ODDS"] = ap.odds.encode('utf-8').strip()
 
-    df = pd.DataFrame(d,index=[0])
-    schooldata_dict,mycolnames = preprocess_data(df)
-
+    df = pd.DataFrame(d, index=[0])
+    schooldata_dict, mycolnames = preprocess_data(df)
 
     print("\n {d}".format(d=d))
-    for school,indf in schooldata_dict.items():
-
+    for school, indf in schooldata_dict.items():
 
         # if missing any columns from training set, add them w/ dummy vals
         for col in colnames:
             if col not in indf['features'].columns:
                 indf['features'][col] = 0.0
 
-
         features_df = indf['features'][colnames]
 
-        #print(features_df)
-
+        # print(features_df)
 
         df2predictfrom = features_df.values
-        df2predictfrom = np.delete(df2predictfrom,0,axis=1)
+        df2predictfrom = np.delete(df2predictfrom, 0, axis=1)
 
         chance = SCHOOL_MODEL.predict(df2predictfrom)
 
