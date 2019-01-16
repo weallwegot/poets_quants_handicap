@@ -15,7 +15,8 @@ import numpy as np
 
 from ML_AP import ApplicantProfile
 
-ORDERED_FEATURE_INPUTS = ['gpa', 'gmat', 'age', 'race', 'university', 'major', 'gender']
+
+ORDERED_FEATURE_INPUTS = ['gmat', 'gpa', 'major', 'race', 'university', 'gender']
 
 
 # create logger with 'spam_application'
@@ -52,8 +53,10 @@ CORS(app)
 # the directory of the curent file
 working_dir = os.path.dirname(os.path.abspath(__file__))
 # the data folder
-data_folder_path = working_dir + os.sep + "models" + os.sep
+data_folder_path = os.path.join(working_dir, "models")
 
+VALID_OPTIONS = [f.replace('.pickle', '') for f in os.listdir(
+    data_folder_path) if os.path.isfile(os.path.join(data_folder_path, f))]
 """
 LyricalApi class takes a GET request
 parses the keys, if the artist key is present
@@ -82,8 +85,12 @@ class ModelMBAApi(Resource):
         except KeyError:
             logger.info('No school included, defaulting to Stanford')
             school = 'stanford'
-
-        school_model = load_model(school)
+        try:
+            school_model = load_model(school)
+        except FileNotFoundError as fe:
+            e_msg = '{school} is not a valid option, try: {opts}'.format(school=school, opts=VALID_OPTIONS)
+            logger.error(e_msg)
+            return return_constructor(500, {'error': e_msg})
 
         if school_model:
 
@@ -91,7 +98,7 @@ class ModelMBAApi(Resource):
 
                 # features basically preprocessed already
                 chance = find_my_chances_with_direct_inputs(
-                    school=school_model,
+                    SCHOOL_MODEL=school_model,
                     json_data=json_data
                 )
 
@@ -141,7 +148,7 @@ def is_direct_input(data_from_post):
         data_from_post {[dict]} -- dictionary is of course
     """
 
-    for k, v in data_from_post.iteritems():
+    for k, v in data_from_post.items():
 
         if k.upper() == 'SCHOOL':
             continue
@@ -200,8 +207,11 @@ def find_my_chances_with_direct_inputs(SCHOOL_MODEL, json_data):
         z.append(float(json_data[x]))
 
     array_of_inputs = np.array(z)
+    # reshape to create 2D array
+    array_of_inputs = array_of_inputs.reshape(1, -1)
     chance = SCHOOL_MODEL.predict(array_of_inputs)
-    return chance
+    # returns array of size 1
+    return chance[0]
 
 
 def find_my_chances_with_parsing(school, gpa, gmat, age, race, university, major, gender, SCHOOL_MODEL):
