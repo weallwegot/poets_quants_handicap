@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, request, url_for, render_template
+from flask import Flask, request, url_for, redirect
 from flask import jsonify, session, current_app
 from flask_restful import reqparse, abort, Api, Resource
 from flask_cors import CORS, cross_origin
@@ -265,7 +265,7 @@ def find_my_chances_with_parsing(school, gpa, gmat, age, race, university, major
 
 @app.route('/')
 def hello_world():
-    return render_template('index.html')
+    return redirect("https://andcomputers.io", code=302)
 
 
 api.add_resource(ModelMBAApi, '/api/v1')
