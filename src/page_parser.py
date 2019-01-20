@@ -1,6 +1,6 @@
 import urllib2
 import lxml.html
-import re 
+import re
 import requests
 import csv
 import time
@@ -11,9 +11,9 @@ from ApplicantProfile import ApplicantProfile
 
 import logging
 logging.basicConfig(format='%(asctime)s %(message)s',
- datefmt='%m/%d/%Y %I:%M:%S %p',
- filename='poetsquants_webscrape.log',
- level=logging.DEBUG)
+                    datefmt='%m/%d/%Y %I:%M:%S %p',
+                    filename='poetsquants_webscrape.log',
+                    level=logging.DEBUG)
 
 DTNOW = datetime.datetime.now()
 
@@ -37,10 +37,12 @@ EXAMPLE
 >>> [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9, 10, 11], [12, 13, 14, 15, 16], [17, 18, 19]]
 """
 # https://stackoverflow.com/questions/1198512/split-a-list-into-parts-based-on-a-set-of-indexes-in-python
-def partition(alist,indices):
-	g = [alist[i:j] for i, j in zip([0]+indices, indices+[None])]
-	# gets rid of empty lists if you are splitting on 0.
-	return [a for a in g if len(a) != 0]
+
+
+def partition(alist, indices):
+    g = [alist[i:j] for i, j in zip([0] + indices, indices + [None])]
+    # gets rid of empty lists if you are splitting on 0.
+    return [a for a in g if len(a) != 0]
 
 
 """
@@ -59,92 +61,94 @@ RETURNS
 ---------
 list of ApplicantProfile objects. see ApplicantProfile.py
 """
-def parse_lists_into_app_objects(stats_list,odds_list,analysis_list,my_writer,filename=None):
-	#find number of applicants defined by list.
-	#there should only be GMAT so use that to split list
-	start_indices = []
-	for i in range(len(stats_list)):
-		e = stats_list[i]
-		if 'GMAT' in e.upper() and len(e)<10:
-			start_indices.append(i)
-	list_of_lists_of_applicant_stats = partition(stats_list,start_indices)
-	n_apps = len(list_of_lists_of_applicant_stats)
-	aps = []
-	for j in range(n_apps):
-		if len(odds_list)>=n_apps:
-			ap = ApplicantProfile(list_of_lists_of_applicant_stats[j],odds_list[j])
-			with open(DATA_FILENAME, 'ar') as csvfile:
-				# fieldnames = ["GMAT",
-				# "GPA",
-				# "UNIVERSITY","MAJOR","JOBTITLE",
-				# "GENDER","RACE","AGE",
-				# "INTERNATIONAL",
-				# "ODDS"]
-				writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-				d = {}
-				d["GMAT"] = ap.gmat_score
-				d["GPA"] = ap.gpa
-				d["UNIVERSITY"] = ap.uni
-				d["MAJOR"] = ap.major
-				d["JOBTITLE"] = ap.job_title
-				d["GENDER"] = ap.gender
-				d["RACE"] = ap.race
-				d["AGE"] = ap.age
-				d["INTERNATIONAL"] = ap.international
-				d["ODDS"] = ap.odds.encode('utf-8').strip()
-				writer.writerow(d)
-			aps.append(ap)
-	return aps
 
 
+def parse_lists_into_app_objects(stats_list, odds_list, analysis_list, my_writer, filename=None):
+    # find number of applicants defined by list.
+    # there should only be GMAT so use that to split list
+    start_indices = []
+    for i in range(len(stats_list)):
+        e = stats_list[i]
+        if 'GMAT' in e.upper() and len(e) < 10:
+            start_indices.append(i)
+    list_of_lists_of_applicant_stats = partition(stats_list, start_indices)
+    n_apps = len(list_of_lists_of_applicant_stats)
+    aps = []
+    for j in range(n_apps):
+        if len(odds_list) >= n_apps:
+            ap = ApplicantProfile(list_of_lists_of_applicant_stats[j], odds_list[j])
+            with open(DATA_FILENAME, 'ar') as csvfile:
+                # fieldnames = ["GMAT",
+                # "GPA",
+                # "UNIVERSITY","MAJOR","JOBTITLE",
+                # "GENDER","RACE","AGE",
+                # "INTERNATIONAL",
+                # "ODDS"]
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                d = {}
+                d["GMAT"] = ap.gmat_score
+                d["GPA"] = ap.gpa
+                d["UNIVERSITY"] = ap.uni
+                d["MAJOR"] = ap.major
+                d["JOBTITLE"] = ap.job_title
+                d["GENDER"] = ap.gender
+                d["RACE"] = ap.race
+                d["AGE"] = ap.age
+                d["INTERNATIONAL"] = ap.international
+                d["ODDS"] = ap.odds.encode('utf-8').strip()
+                writer.writerow(d)
+            aps.append(ap)
+    return aps
 
 
-def create_applicant_profiles(page_tree,my_writer,filename=None):
-	# look for <strong></strong> w
-	# look for <ul></ul>
-	# each <li></li> in there will then have one or more attributes
-	# about the persons appllication profile and then from there you can 
-	# probably do the regular parsing 
-	x_path_to_entry_stats_text = '//ul/li/text()'
-	x_path_to_headers = '//p/strong' 
-	# TODO: list comprehensions stop being cute at a certain point vvvvv
-	odds_of_success_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(x_path_to_headers) if 'SUCCESS' in hdr.text_content().upper() and 'ODDS' in hdr.text_content().upper()]
-	# odds_of_success_text = []
-	# for hdr in page_tree.xpath(x_path_to_headers):
-	# 	if 'SUCCESS' in hdr.text_content().upper() and 'ODDS' in hdr.text_content().upper():
-	# 		odds = hdr.getparent().getnext().text_content()
-	# 		odds_of_success_text.append(odds)
+def create_applicant_profiles(page_tree, my_writer, filename=None, article_link=None, page_number=None):
+    # look for <strong></strong> w
+    # look for <ul></ul>
+    # each <li></li> in there will then have one or more attributes
+    # about the persons appllication profile and then from there you can
+    # probably do the regular parsing
+    x_path_to_entry_stats_text = '//ul/li/text()'
+    x_path_to_headers = '//p/strong'
+    # TODO: list comprehensions stop being cute at a certain point vvvvv
+    odds_of_success_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(
+        x_path_to_headers) if 'SUCCESS' in hdr.text_content().upper() and 'ODDS' in hdr.text_content().upper()]
+    # odds_of_success_text = []
+    # for hdr in page_tree.xpath(x_path_to_headers):
+    # 	if 'SUCCESS' in hdr.text_content().upper() and 'ODDS' in hdr.text_content().upper():
+    # 		odds = hdr.getparent().getnext().text_content()
+    # 		odds_of_success_text.append(odds)
 
-	# TODO: list comprehensions stop being cute at a certain point vvvvv
-	partial_analysis_text = [hdr.getparent().getnext().text_content() for hdr in page_tree.xpath(x_path_to_headers) if 'ANALYSIS' in hdr.text_content().upper()]
-	# gets rid of garbage '<li>' elements that are blank or have the comment count in them.
-	applicant_stats_text = [li_text for li_text in page_tree.xpath(x_path_to_entry_stats_text) if li_text != ' ' and 'COMMENTS' not in li_text.upper()]
-	
-	applicant_list = parse_lists_into_app_objects(
-		applicant_stats_text,
-		odds_of_success_text,
-		partial_analysis_text,
-		my_writer,
-		filename=filename
-		)
-	#logging.info(str(applicant_stats_text))
+    # TODO: list comprehensions stop being cute at a certain point vvvvv
+    partial_analysis_text = [hdr.getparent().getnext().text_content()
+                             for hdr in page_tree.xpath(x_path_to_headers) if 'ANALYSIS' in hdr.text_content().upper()]
+    # gets rid of garbage '<li>' elements that are blank or have the comment count in them.
+    applicant_stats_text = [li_text for li_text in page_tree.xpath(
+        x_path_to_entry_stats_text) if li_text != ' ' and 'COMMENTS' not in li_text.upper()]
 
+    applicant_list = parse_lists_into_app_objects(
+        applicant_stats_text,
+        odds_of_success_text,
+        partial_analysis_text,
+        my_writer,
+        filename=filename
+    )
+    # logging.info(str(applicant_stats_text))
 
-	return applicant_list
+    return applicant_list
 
 fieldnames = [
-			"GMAT",
-			"GPA",
-			"UNIVERSITY",
-			"MAJOR",
-			"JOBTITLE",
-			"GENDER",
-			"RACE",
-			"AGE",
-			"INTERNATIONAL",
-			"ODDS"
-			]
-## create csv
+    "GMAT",
+    "GPA",
+    "UNIVERSITY",
+    "MAJOR",
+    "JOBTITLE",
+    "GENDER",
+    "RACE",
+    "AGE",
+    "INTERNATIONAL",
+    "ODDS"
+]
+# create csv
 mw = None
 with open(DATA_FILENAME, 'wr') as csvfile:
 
@@ -169,35 +173,28 @@ all_listed_article_links = [el.attrib['href'] for el in all_listed_a_tags if "Pa
 
 # loop through all of the links on the root page
 for art in all_listed_article_links:
-	logging.info("current article link: {}\n".format(art))
-	# retrieve content of current link.
-	time.sleep(6.0)
-	art_content_tree = lxml.html.fromstring(requests.get(art).content)
-	# make sure to get all the pages in the article
-	# here we or getting the part that says "Page 1 of 4"
-	pages_nav_xpath = '//span[@class="pages"]'
-	nav_element = art_content_tree.xpath(pages_nav_xpath)
-	# we could make this an internal attribute of a data class or just do everything in less OO terms
-	# for now make it more scripty and just have a "global" var to hold the applicant profiles
-	profiles = create_applicant_profiles(art_content_tree,mw,filename=DATA_FILENAME)
-	# this is like append, but a bit diff; ex: [] += [1,2] -> [1,2]
-	all_profiles += profiles
-	num_pages = 1
-	if len(nav_element) == 1:
-		# get last character of string that says "Page 1 of 4"
-		num_pages = nav_element[0].text_content()[-1]
-		logging.info("Number of pages: {}\n".format(num_pages))
-	# loop through all of the pages that make up the given article.
-	for page in range(2,int(num_pages)+1):
-		logging.info("On page #{}\n".format(page))
-		time.sleep(1.0)
-		art_content_tree_next_page = lxml.html.fromstring(requests.get(art+'/'+str(page)+'/').content)
-		nxt_page_profiles = create_applicant_profiles(art_content_tree_next_page,mw)
-		all_profiles += nxt_page_profiles
-
-
-
-
-
-
-
+    logging.info("current article link: {}\n".format(art))
+    # retrieve content of current link.
+    time.sleep(6.0)
+    art_content_tree = lxml.html.fromstring(requests.get(art).content)
+    # make sure to get all the pages in the article
+    # here we or getting the part that says "Page 1 of 4"
+    pages_nav_xpath = '//span[@class="pages"]'
+    nav_element = art_content_tree.xpath(pages_nav_xpath)
+    # we could make this an internal attribute of a data class or just do everything in less OO terms
+    # for now make it more scripty and just have a "global" var to hold the applicant profiles
+    profiles = create_applicant_profiles(art_content_tree, mw, filename=DATA_FILENAME)
+    # this is like append, but a bit diff; ex: [] += [1,2] -> [1,2]
+    all_profiles += profiles
+    num_pages = 1
+    if len(nav_element) == 1:
+        # get last character of string that says "Page 1 of 4"
+        num_pages = nav_element[0].text_content()[-1]
+        logging.info("Number of pages: {}\n".format(num_pages))
+    # loop through all of the pages that make up the given article.
+    for page in range(2, int(num_pages) + 1):
+        logging.info("On page #{}\n".format(page))
+        time.sleep(1.0)
+        art_content_tree_next_page = lxml.html.fromstring(requests.get(art + '/' + str(page) + '/').content)
+        nxt_page_profiles = create_applicant_profiles(art_content_tree_next_page, mw, art, page)
+        all_profiles += nxt_page_profiles
