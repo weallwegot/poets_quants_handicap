@@ -66,8 +66,8 @@ for school, feature_label_d in school_data_dict.items():
     # predicted_labels_gboost = gboosting_pred(features,labels)
 
     # colnames[1:] so you dont include index
-    model = fit_train_test_cv(model_obj=None, X_train=features, Y_labels=labels, column_names=colnames[1:])
-    model_str = pickle.dumps(obj=model)
+    model_and_features = fit_train_test_cv(model_obj=None, X_train=features, Y_labels=labels, column_names=colnames[1:])
+    model_str = pickle.dumps(obj=model_and_features)
     with open("models/{}.pickle".format(school.lower()), "wb") as f_h:
         f_h.write(model_str)
 
@@ -83,7 +83,7 @@ for school, feature_label_d in school_data_dict.items():
 
     # display_metrics("Ridge with Parameter Tuning for {}".format(school),predicted_labels_ridge_cv,labels)
 
-    MODELS[school] = model
+    MODELS[school] = model_and_features
 
 
 def find_my_chances(gpa, gmat, age, race, university, major, gender):
@@ -130,7 +130,7 @@ def find_my_chances(gpa, gmat, age, race, university, major, gender):
         df2predictfrom = features_df.values
         df2predictfrom = np.delete(df2predictfrom, 0, axis=1)
 
-        chance = MODELS[school].predict(df2predictfrom)
+        chance = MODELS[school]['model'].predict(df2predictfrom)
         try:
             pass
             #print("Coefficients: {}".format(MODELS[school].coef_))
