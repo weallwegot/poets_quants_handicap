@@ -73,7 +73,7 @@ def fit_train_test_cv(X_train, Y_labels, column_names, model_obj=None):
     #feat_imp.plot(kind='bar', title='Feature Importances')
     #plt.ylabel('Feature Importance Score')
 
-    return model_obj
+    return {'model': model_obj, 'importance': feat_imp}
 
 
 def catboost_pred(catboost_pool):
