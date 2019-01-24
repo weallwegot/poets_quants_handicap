@@ -182,7 +182,7 @@ def load_model(school):
 
         school_model = None
 
-    return school_model
+    return school_model['model']
 
 
 def find_my_chances_with_direct_inputs(SCHOOL_MODEL, json_data):
