@@ -1,6 +1,7 @@
 import pdb
 import pandas as pd
 import numpy as np
+import datetime
 
 
 from sklearn.linear_model import LinearRegression, SGDRegressor, ElasticNet, Lasso, Ridge, RidgeCV
@@ -27,7 +28,7 @@ def fit_train_test_cv(X_train, Y_labels, column_names, model_obj=None):
 
     #cv_score = cross_val_score(model_obj, X_train, Y_labels, cv=5,scoring='neg_mean_squared_error')
 
-    splitter = ShuffleSplit(test_size=0.05, n_splits=10)
+    splitter = ShuffleSplit(test_size=0.15, n_splits=10)
     # this creates multiple splits (im using it wrong i know)
     rmses = []
     for trn, tst in splitter.split(X_train, Y_labels):
@@ -72,8 +73,8 @@ def fit_train_test_cv(X_train, Y_labels, column_names, model_obj=None):
         pass
     #feat_imp.plot(kind='bar', title='Feature Importances')
     #plt.ylabel('Feature Importance Score')
-
-    return {'model': model_obj, 'importance': feat_imp}
+    now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return {'model': model_obj, 'importance': feat_imp, 'metadata': {'training_time': now_str}}
 
 
 def catboost_pred(catboost_pool):
