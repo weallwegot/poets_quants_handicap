@@ -46,8 +46,6 @@ print(colnames)
 MODELS = {}
 # would use iteritems, but what if i want to port to python 3.5
 for school, feature_label_d in school_data_dict.items():
-    if not school.lower() == 'stanford':
-        continue
 
     features = feature_label_d['features'].values
     labels = feature_label_d['labels'].values
