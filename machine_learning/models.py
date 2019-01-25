@@ -31,6 +31,10 @@ def fit_train_test_cv(X_train, Y_labels, column_names, model_obj=None):
     n_estimators_range = range(10, 200, 10)
     max_depth_range = range(2, 15)
 
+    rmse_param_map = {}
+
+    min_rmse = 99999999
+
     for n_est in n_estimators_range:
         for max_depth in max_depth_range:
             model_obj = GradientBoostingRegressor(
@@ -39,36 +43,64 @@ def fit_train_test_cv(X_train, Y_labels, column_names, model_obj=None):
                 max_depth=max_depth
             )
 
-    splitter = ShuffleSplit(test_size=0.15, n_splits=3)
-    rmses = []
-    for trn, tst in splitter.split(X_train, Y_labels):
-        train_idx = trn
-        test_idx = tst
+            splitter = ShuffleSplit(test_size=0.15, n_splits=3)
+            rmses = []
+            for trn, tst in splitter.split(X_train, Y_labels):
+                train_idx = trn
+                test_idx = tst
 
-        # train_idx,test_idx = splitter.split(X_train,Y_labels)
+                # train_idx,test_idx = splitter.split(X_train,Y_labels)
 
-        #gboost_model = GradientBoostingRegressor()
-        model_obj.fit(X_train[train_idx], Y_labels[train_idx])
+                #gboost_model = GradientBoostingRegressor()
+                model_obj.fit(X_train[train_idx], Y_labels[train_idx])
 
-        pred_labels = model_obj.predict(X_train[test_idx])
+                pred_labels = model_obj.predict(X_train[test_idx])
 
-        real_labels = Y_labels[test_idx]
+                real_labels = Y_labels[test_idx]
 
-        #z = np.sqrt( np.sum((real_labels-pred_labels)**2.)/(len(real_labels))  )
+                #z = np.sqrt( np.sum((real_labels-pred_labels)**2.)/(len(real_labels))  )
 
-        #print("Number of Test Samples: {}".format(len(real_labels)))
-        # RMSE calculation
-        z = np.sqrt(np.sum((real_labels.flatten() - pred_labels)**2) / len(pred_labels))
+                #print("Number of Test Samples: {}".format(len(real_labels)))
+                # RMSE calculation
+                z = np.sqrt(np.sum((real_labels.flatten() - pred_labels)**2) / len(pred_labels))
 
-        # pdb.set_trace()
+                # pdb.set_trace()
 
-        #print("RMSE: {}".format(z))
-        rmses.append(z)
+                #print("RMSE: {}".format(z))
+                rmses.append(z)
 
-    print("Median RMSE: {}".format(np.median(rmses)))
-    print("pred_labels: {}".format(pred_labels))
-    print("real_labels: {}".format(real_labels.flatten()))
-    print("Differences: {}".format((real_labels.flatten() - pred_labels)))
+            # store the combos of the n_est and max_depth
+
+            median_rmse = np.median(rmses)
+            rmse_param_map[(n_est, max_depth)] = median_rmse
+
+            if median_rmse < min_rmse:
+                min_rmse = median_rmse
+                best_results = {'n_estimators': n_est,
+                                'max_depth': max_depth,
+                                'RMSE': min_rmse}
+
+                print("{}".format(column_names))
+                try:
+                    feat_imp = pd.Series(model_obj.feature_importances_, column_names).sort_values(ascending=False)
+                    print(feat_imp)
+                except AttributeError as ae:
+                    pass
+                #feat_imp.plot(kind='bar', title='Feature Importances')
+                #plt.ylabel('Feature Importance Score')
+                now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                RETURN_DATA = {'model': model_obj, 'importance': feat_imp, 'metadata': {'training_time': now_str}}
+
+            else:
+                pass
+
+            print("NUMBER OF ESTIMATORS: {}".format(n_est))
+            print("MAXIMUM DEPTH: {}".format(max_depth))
+            print("Median RMSE: {}".format(np.median(rmses)))
+            print("pred_labels: {}".format(pred_labels))
+            print("real_labels: {}".format(real_labels.flatten()))
+            print("Differences: {}".format((real_labels.flatten() - pred_labels)))
 
     #print("Model Report \n")
     #print("Accuracy: {}".format(metrics.accuracy_score(Y_labels, pred_labels)))
@@ -76,16 +108,16 @@ def fit_train_test_cv(X_train, Y_labels, column_names, model_obj=None):
 
     #print("CV Score : Mean {} | Std {}| Min {} | Max {}".format(np.mean(cv_score),np.std(cv_score),np.min(cv_score),np.max(cv_score)))
 
-    print("{}".format(column_names))
-    try:
-        feat_imp = pd.Series(model_obj.feature_importances_, column_names).sort_values(ascending=False)
-        print(feat_imp)
-    except AttributeError as ae:
-        pass
-    #feat_imp.plot(kind='bar', title='Feature Importances')
-    #plt.ylabel('Feature Importance Score')
-    now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    return {'model': model_obj, 'importance': feat_imp, 'metadata': {'training_time': now_str}}
+    # print("{}".format(column_names))
+    # try:
+    #     feat_imp = pd.Series(model_obj.feature_importances_, column_names).sort_values(ascending=False)
+    #     print(feat_imp)
+    # except AttributeError as ae:
+    #     pass
+    # #feat_imp.plot(kind='bar', title='Feature Importances')
+    # #plt.ylabel('Feature Importance Score')
+    # now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return RETURN_DATA
 
 
 def catboost_pred(catboost_pool):
