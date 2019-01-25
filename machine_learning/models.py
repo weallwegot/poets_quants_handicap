@@ -21,12 +21,15 @@ from constants import RANDOM_STATE
 def fit_train_test_cv(X_train, Y_labels, column_names, model_obj=None):
 
     if not model_obj:
-        model_obj = GradientBoostingRegressor()
+        model_obj = GradientBoostingRegressor((random_state=RANDOM_STATE))
 
     # model_obj.fit(X_train,Y_labels)
     #pred_labels = model_obj.predict(X_train)
 
     #cv_score = cross_val_score(model_obj, X_train, Y_labels, cv=5,scoring='neg_mean_squared_error')
+
+    n_estimators_range = range(10, 200, 10)
+    max_depth_range = range(2, 15)
 
     splitter = ShuffleSplit(test_size=0.15, n_splits=10)
     # this creates multiple splits (im using it wrong i know)
@@ -47,6 +50,7 @@ def fit_train_test_cv(X_train, Y_labels, column_names, model_obj=None):
         #z = np.sqrt( np.sum((real_labels-pred_labels)**2.)/(len(real_labels))  )
 
         #print("Number of Test Samples: {}".format(len(real_labels)))
+        # RMSE calculation
         z = np.sqrt(np.sum((real_labels.flatten() - pred_labels)**2) / len(pred_labels))
 
         # pdb.set_trace()
