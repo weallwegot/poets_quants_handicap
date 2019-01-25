@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+aws_lambda/*.zip
+
 **.DS_Store
 *k.txt
 # Distribution / packaging
