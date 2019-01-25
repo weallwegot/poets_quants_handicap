@@ -21,7 +21,7 @@ from constants import RANDOM_STATE
 def fit_train_test_cv(X_train, Y_labels, column_names, model_obj=None):
 
     if not model_obj:
-        model_obj = GradientBoostingRegressor((random_state=RANDOM_STATE))
+        model_obj = GradientBoostingRegressor(random_state=RANDOM_STATE)
 
     # model_obj.fit(X_train,Y_labels)
     #pred_labels = model_obj.predict(X_train)
@@ -31,8 +31,15 @@ def fit_train_test_cv(X_train, Y_labels, column_names, model_obj=None):
     n_estimators_range = range(10, 200, 10)
     max_depth_range = range(2, 15)
 
-    splitter = ShuffleSplit(test_size=0.15, n_splits=10)
-    # this creates multiple splits (im using it wrong i know)
+    for n_est in n_estimators_range:
+        for max_depth in max_depth_range:
+            model_obj = GradientBoostingRegressor(
+                random_state=RANDOM_STATE,
+                n_estimators=n_est,
+                max_depth=max_depth
+            )
+
+    splitter = ShuffleSplit(test_size=0.15, n_splits=3)
     rmses = []
     for trn, tst in splitter.split(X_train, Y_labels):
         train_idx = trn
