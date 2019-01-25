@@ -46,6 +46,8 @@ print(colnames)
 MODELS = {}
 # would use iteritems, but what if i want to port to python 3.5
 for school, feature_label_d in school_data_dict.items():
+    if not school.lower() == 'stanford':
+        continue
 
     features = feature_label_d['features'].values
     labels = feature_label_d['labels'].values
@@ -113,6 +115,7 @@ def find_my_chances(gpa, gmat, age, race, university, major, gender):
     d["ODDS"] = ap.odds.encode('utf-8').strip()
 
     df = pd.DataFrame(d, index=[0])
+
     schooldata_dict, mycolnames = preprocess_data(df)
 
     print("\n {d}".format(d=d))
@@ -130,7 +133,12 @@ def find_my_chances(gpa, gmat, age, race, university, major, gender):
         df2predictfrom = features_df.values
         df2predictfrom = np.delete(df2predictfrom, 0, axis=1)
 
-        chance = MODELS[school]['model'].predict(df2predictfrom)
+        try:
+
+            chance = MODELS[school]['model'].predict(df2predictfrom)
+
+        except KeyError as ke:
+            print("No model for {}".format(school))
         try:
             pass
             #print("Coefficients: {}".format(MODELS[school].coef_))

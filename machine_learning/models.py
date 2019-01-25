@@ -92,15 +92,22 @@ def fit_train_test_cv(X_train, Y_labels, column_names, model_obj=None):
 
                 RETURN_DATA = {'model': model_obj, 'importance': feat_imp, 'metadata': {'training_time': now_str}}
 
+                print("NUMBER OF ESTIMATORS: {}".format(n_est))
+                print("MAXIMUM DEPTH: {}".format(max_depth))
+                print("Median RMSE: {}".format(np.median(rmses)))
+                print("pred_labels: {}".format(pred_labels))
+                print("real_labels: {}".format(real_labels.flatten()))
+                print("Differences: {}".format((real_labels.flatten() - pred_labels)))
+
             else:
                 pass
 
-            print("NUMBER OF ESTIMATORS: {}".format(n_est))
-            print("MAXIMUM DEPTH: {}".format(max_depth))
-            print("Median RMSE: {}".format(np.median(rmses)))
-            print("pred_labels: {}".format(pred_labels))
-            print("real_labels: {}".format(real_labels.flatten()))
-            print("Differences: {}".format((real_labels.flatten() - pred_labels)))
+            # print("NUMBER OF ESTIMATORS: {}".format(n_est))
+            # print("MAXIMUM DEPTH: {}".format(max_depth))
+            # print("Median RMSE: {}".format(np.median(rmses)))
+            # print("pred_labels: {}".format(pred_labels))
+            # print("real_labels: {}".format(real_labels.flatten()))
+            # print("Differences: {}".format((real_labels.flatten() - pred_labels)))
 
     #print("Model Report \n")
     #print("Accuracy: {}".format(metrics.accuracy_score(Y_labels, pred_labels)))
