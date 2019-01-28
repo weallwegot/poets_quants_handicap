@@ -118,10 +118,12 @@ class ModelMBAApi(Resource):
             return return_constructor(200, {'chance': chance, 'school': school})
 
         else:
-            return return_constructor(500, '{} is not a valid school option'.format(school))
+            e_msg = '{} is not a valid school option'.format(school)
+            return return_constructor(500, {'error': e_msg})
 
     def get(self):
-        return return_constructor(500, 'Get methods are not available, please provide a post body.')
+        e_msg = 'Get methods are not available, please provide a post body.'
+        return return_constructor(500, {'error': e_msg})
 
 
 def is_number(s):
