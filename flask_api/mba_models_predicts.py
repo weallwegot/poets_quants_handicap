@@ -58,11 +58,6 @@ data_folder_path = os.path.join(working_dir, "models")
 VALID_OPTIONS = [f.replace('.pickle', '') for f in os.listdir(
     data_folder_path) if os.path.isfile(os.path.join(data_folder_path, f))]
 """
-LyricalApi class takes a GET request
-parses the keys, if the artist key is present
-look up random lyric from said artist
-if its not, look up random lyric from Cardi B
-
 TODO: use jsonify instead of this weird lil custom dictionary thing, no?
 """
 
@@ -134,7 +129,7 @@ def is_number(s):
         s {[int,float,str]} -- input to test
 
     Returns:
-        bool -- [description]
+        bool -- is the input a number
     """
     try:
         float(s)
@@ -148,6 +143,9 @@ def is_direct_input(data_from_post):
 
     Arguments:
         data_from_post {[dict]} -- dictionary is of course
+
+    Returns:
+        bool -- is the input data able to be used as a direct model input w/o processing
     """
 
     for k, v in data_from_post.items():
@@ -193,15 +191,14 @@ def find_my_chances_with_direct_inputs(SCHOOL_MODEL, json_data):
     [description]
 
     Arguments:
-        school {[type]} -- [description]
-        gpa {[type]} -- [description]
-        gmat {[type]} -- [description]
-        age {[type]} -- [description]
-        race {[type]} -- [description]
-        university {[type]} -- [description]
-        major {[type]} -- [description]
-        gender {[type]} -- [description]
-        SCHOOL_MODEL {[type]} -- [description]
+        json_data {[dict]} -- a dictionary holding all of the information needed
+        as inputs for a model prediction. the inputs must be in the processed format,
+        meaining everything is already encoded into its numerical representation, including
+        categorical data such as university, race, and gender.
+        SCHOOL_MODEL {[sklearn model]} -- model which will be used to make prediction
+
+    Returns:
+        float -- the predicted likelihood of applicant's acceptance as a decimal 0-1
     """
 
     z = []
@@ -217,7 +214,24 @@ def find_my_chances_with_direct_inputs(SCHOOL_MODEL, json_data):
 
 
 def find_my_chances_with_parsing(school, gpa, gmat, age, race, university, major, gender, SCHOOL_MODEL):
+    """[summary]
 
+    [description]
+
+    Arguments:
+        school {[str]} -- [description]
+        gpa {[float]} -- applicants gpa ona 4.0 scale
+        gmat {[float,int]} -- applicant's gmat score 
+        age {[int]} -- applicant's age
+        race {[str]} -- describes race of the applicant
+        university {[str]} -- describes the applicants degree granting university
+        major {[str]} -- describes the applicants major
+        gender {[str]} -- describe the applicant gender
+        SCHOOL_MODEL {[sklearn model]} -- model which will be used to make prediction
+
+    Returns:
+        float -- the predicted likelihood of applicant's acceptance as a decimal 0-1
+    """
     # create list of strings to trigger the applicant profile parsing
     gpa_str = "{} GPA".format(gpa)
     gmat_str = "{} GMAT".format(gmat)
