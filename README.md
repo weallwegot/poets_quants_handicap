@@ -1,6 +1,35 @@
 # Handicapping EVERYONES MBA Odds
 
-This project is still a work in progress but its essentially a webscrape of an MBA website where a former admissions officer gives people the odds that they'll get into certain programs across the country. 
+[Blog post on motivation](https://andcomputers.io/bschool-webscrapes-and-machine-learning/)
+
+This project is essentially a webscrape of an MBA website where a former admissions officer gives people the odds that they'll get into certain programs across the country. 
+
+There is an api deployed at `https://jcp.pythonanywhere.com/api/v1` and takes POST requests of the following format.
+
+```
+{"gpa":gpa,
+                  "gmat":gmat,
+                  "major":major,
+                  "race":urm,
+                  "gender":gender,
+                  "school":aspirationalSchool,
+                  "university":nameBrandSchool}
+```
+
+gpa: your gpa on a 4 point scale
+
+major: 1 for STEM, 0 for non stem
+
+urm: 1 for underrepresented minority, 0 for not
+
+gender: 1 for female, 0
+
+university: 1 if you went to a school everyone knows, 0 if its less known
+
+school: the school you want to predict your MBA admission chances for. choices are ["stanford","harvard","wharton","booth","columbia","sloan","kellogg"]
+
+noting that these features are not high enough resolution to truly represent an applicant, but read the blog post for more on that :)
+
 
 - The `page_parser` is used to build a dataset of applicant profiles from [Poets and Quants](http://poetsandquants.com/2017/05/30/handicapping-your-elite-mba-odds-18/5/)
 
