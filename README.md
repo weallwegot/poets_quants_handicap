@@ -4,32 +4,36 @@
 
 This project is essentially a webscrape of an MBA website where a former admissions officer gives people the odds that they'll get into certain programs across the country. 
 
-There is an api deployed at `https://jcp.pythonanywhere.com/api/v1` and takes POST requests of the following format.
+There is an api deployed at `https://jcp.pythonanywhere.com/api/v1` and it processes POST requests with the following format.
 
+The following JSON payload would be sent to the api to receive  the chances of admission to University of Chicago Booth MBA for an underrepresented minority male with a `3.1` gpa, a `650` gmat, a STEM major, and a degree from a well recognized school (whatever that means).
+
+```python
+
+{"gpa":"3.1",
+ "gmat":"650",
+ "major":"1",
+ "race":"1",
+ "gender":"0",
+ "school":"1",
+ "university":"booth"}
 ```
-{"gpa":gpa,
-                  "gmat":gmat,
-                  "major":major,
-                  "race":urm,
-                  "gender":gender,
-                  "school":aspirationalSchool,
-                  "university":nameBrandSchool}
-```
 
-gpa: your gpa on a 4 point scale
+`gpa`: your gpa on a 4 point scale
 
-major: 1 for STEM, 0 for non stem
+`major`: 1 for STEM, 0 for non stem
 
-urm: 1 for underrepresented minority, 0 for not
+`urm`: 1 for underrepresented minority, 0 for not
 
-gender: 1 for female, 0
+`gender`: 1 for female, else 0
 
-university: 1 if you went to a school everyone knows, 0 if its less known
+`university`: 1 if you went to a school everyone knows, 0 if its less known
 
-school: the school you want to predict your MBA admission chances for. choices are ["stanford","harvard","wharton","booth","columbia","sloan","kellogg"]
+`school`: the school you want to predict your MBA admission chances for. choices are ["stanford","harvard","wharton","booth","columbia","sloan","kellogg"]
 
-noting that these features are not high enough resolution to truly represent an applicant, but read the blog post for more on that :)
+_noting that these features are not high enough resolution to truly represent an applicant, but read the blog post for more on that_
 
+-------------------------------------------------------------
 
 - The `page_parser` is used to build a dataset of applicant profiles from [Poets and Quants](http://poetsandquants.com/2017/05/30/handicapping-your-elite-mba-odds-18/5/)
 
